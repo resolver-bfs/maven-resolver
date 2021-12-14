@@ -119,14 +119,15 @@ public class ChecksumCalculatorTest
     @Test
     public void testUnknownAlgorithm()
     {
-        ChecksumCalculator calculator = newCalculator( "unknown", SHA1 );
+        ChecksumCalculator calculator = newCalculator( "unknown", TestChecksumImplementationSelector.TEST_CHECKSUM, SHA1 );
         calculator.init( 0 );
         calculator.update( toBuffer( "Hello World!" ) );
         Map<String, Object> digests = calculator.get();
         assertNotNull( digests );
         assertEquals( "2ef7bde608ce5404e97d5f042f95f89f1c232871", digests.get( SHA1 ) );
         assertTrue( digests.get( "unknown" ) instanceof NoSuchAlgorithmException );
-        assertEquals( 2, digests.size() );
+        assertEquals( "01020304", digests.get( TestChecksumImplementationSelector.TEST_CHECKSUM ) );
+        assertEquals( 3, digests.size() );
     }
 
     @Test

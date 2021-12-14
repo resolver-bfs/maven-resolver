@@ -19,13 +19,44 @@ package org.eclipse.aether.connector.basic;
  * under the License.
  */
 
+import java.nio.ByteBuffer;
+import java.security.NoSuchAlgorithmException;
+
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementation;
 import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
 import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelectorSupport;
 
 /**
- * Default implementation of {@link ChecksumImplementationSelector}.
+ * Test implementation of {@link ChecksumImplementationSelector}.
  */
 public class TestChecksumImplementationSelector
     extends ChecksumImplementationSelectorSupport
 {
+  public static final String TEST_CHECKSUM = "test";
+
+  public static final byte[] TEST_CHECKSUM_VALUE = new byte[] { 0x1, 0x2, 0x3, 0x4 };
+
+  @Override
+  public ChecksumImplementation select(final String algorithm) throws NoSuchAlgorithmException {
+    if ( TEST_CHECKSUM.equals( algorithm ) )
+    {
+      return new ChecksumImplementation() {
+        @Override
+        public void update(final ByteBuffer input) {
+
+        }
+
+        @Override
+        public void reset() {
+
+        }
+
+        @Override
+        public byte[] digest() {
+          return TEST_CHECKSUM_VALUE;
+        }
+      };
+    }
+    return super.select(algorithm);
+  }
 }

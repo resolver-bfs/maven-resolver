@@ -34,6 +34,10 @@ import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelectorS
 import static java.util.Objects.requireNonNull;
 
 /**
+ * Default implementation of {@link org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector} that
+ * is extensible.
+ *
+ * @since TBD
  */
 @Singleton
 @Named
