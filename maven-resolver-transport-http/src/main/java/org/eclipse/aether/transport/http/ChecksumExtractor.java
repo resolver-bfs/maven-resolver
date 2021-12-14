@@ -25,7 +25,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import java.util.Map;
 
 /**
- * A component extracting checksums from response aka "smart checksums.
+ * A component extracting checksums from response aka "smart checksums".
  *
  * @since TBD
  */

@@ -271,34 +271,47 @@ final class HttpTransporter
     protected void implGet( GetTask task )
         throws Exception
     {
+        boolean resume = true;
+        boolean smartChecksum = true;
+
         EntityGetter getter = new EntityGetter( task );
         HttpGet request = commonHeaders( new HttpGet( resolve( task ) ) );
-        resume( request, task );
-
-        try
+        while ( true )
         {
-            for ( ChecksumExtractor checksumExtractor : checksumExtractors.values() )
+            try
             {
-                checksumExtractor.prepareRequest( request );
-            }
-            execute( request, getter );
-        }
-        catch ( HttpResponseException e )
-        {
-            if ( e.getStatusCode() == HttpStatus.SC_PRECONDITION_FAILED && request.containsHeader( HttpHeaders.RANGE ) )
-            {
-                request = commonHeaders( new HttpGet( request.getURI() ) );
+                if ( resume )
+                {
+                    resume( request, task );
+                }
+                if ( smartChecksum )
+                {
+                    for ( ChecksumExtractor checksumExtractor : checksumExtractors.values() )
+                    {
+                        checksumExtractor.prepareRequest( request );
+                    }
+                }
                 execute( request, getter );
-                return;
+                break;
             }
-            if ( e.getStatusCode() == HttpStatus.SC_BAD_REQUEST
-                    && request.containsHeader( DigestChecksumExtractor.HEADER_WANT_DIGEST ) )
+            catch ( HttpResponseException e )
             {
-                request = commonHeaders( new HttpGet( request.getURI() ) );
-                execute( request, getter );
-                return;
+                if ( resume && e.getStatusCode() == HttpStatus.SC_PRECONDITION_FAILED
+                        && request.containsHeader( HttpHeaders.RANGE ) )
+                {
+                    request = commonHeaders( new HttpGet( resolve( task ) ) );
+                    resume = false;
+                    continue;
+                }
+                if ( e.getStatusCode() == HttpStatus.SC_BAD_REQUEST
+                        && request.containsHeader( DigestChecksumExtractor.HEADER_WANT_DIGEST ) )
+                {
+                    request = commonHeaders( new HttpGet( resolve( task ) ) );
+                    smartChecksum = false;
+                    continue;
+                }
+                throw e;
             }
-            throw e;
         }
     }
 

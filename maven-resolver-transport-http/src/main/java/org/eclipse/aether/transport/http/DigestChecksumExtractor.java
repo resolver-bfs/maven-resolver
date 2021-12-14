@@ -46,7 +46,6 @@ public class DigestChecksumExtractor
     @Override
     public void prepareRequest( HttpUriRequest request )
     {
-        // TODO: make this configurable to avoid HTTP 400
         if ( request instanceof HttpGet )
         {
             request.addHeader( HEADER_WANT_DIGEST, "sha;q=0.5, md5;q=0.1" );
