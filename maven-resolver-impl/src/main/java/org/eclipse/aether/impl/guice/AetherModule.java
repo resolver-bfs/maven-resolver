@@ -255,11 +255,10 @@ public class AetherModule
 
     @Provides
     @Singleton
-    Map<String, Provider<ChecksumAlgorithm>> provideChecksumImplementations()
+    protected Map<String, Provider<ChecksumAlgorithm>> provideChecksumImplementations()
     {
         return Collections.emptyMap();
     }
-
 
     private static class Slf4jModule
         extends AbstractModule
