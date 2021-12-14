@@ -19,23 +19,13 @@ package org.eclipse.aether.connector.basic;
  * under the License.
  */
 
-import java.nio.ByteBuffer;
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelectorSupport;
 
 /**
- * Implementation performing checksum calculation for specific algorithm. Instances of this interface as stateful,
- * should be reused only after {@link #reset()}.
- *
- * <strong>Important note:</strong> if implementation of this interface is component, it MUST NOT be singleton, but
- * must adhere to "prototype" pattern. Alternative is just to implement a provider, and on each get invocation create
- * new instance.
- *
- * @since TBD
+ * Default implementation of {@link ChecksumImplementationSelector}.
  */
-public interface ChecksumImplementation
+public class TestChecksumImplementationSelector
+    extends ChecksumImplementationSelectorSupport
 {
-  void update( ByteBuffer input );
-
-  void reset();
-
-  byte[] digest();
 }

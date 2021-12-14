@@ -1,4 +1,4 @@
-package org.eclipse.aether.connector.basic.checksum;
+package org.eclipse.aether.spi.connector.checksum;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -20,42 +20,40 @@ package org.eclipse.aether.connector.basic.checksum;
  */
 
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-
-import org.eclipse.aether.connector.basic.ChecksumImplementation;
+import static java.util.Objects.requireNonNull;
 
 /**
- * Provides FOO calculating checksum implementation.
- *
- * @since TBD
+ * Support for implementation of {@link ChecksumImplementationSelector} with default behaviour.
  */
-@Singleton
-@Named( "FOO" )
-public class FooChecksumImplementationProvider
-    implements Provider<ChecksumImplementation>
+public abstract class ChecksumImplementationSelectorSupport
+    implements ChecksumImplementationSelector
 {
     @Override
-    public ChecksumImplementation get()
+    public ChecksumImplementation select( final String algorithm ) throws NoSuchAlgorithmException
     {
+        requireNonNull( algorithm, "algorithm name must not be null" );
+        MessageDigest messageDigest = MessageDigest.getInstance( algorithm );
         return new ChecksumImplementation()
         {
             @Override
             public void update( final ByteBuffer input )
             {
+                messageDigest.update( input );
             }
 
             @Override
             public void reset()
             {
+                messageDigest.reset();
             }
 
             @Override
             public byte[] digest()
             {
-                return new byte[] { 0x1, 0x2 };
+                return messageDigest.digest();
             }
         };
     }

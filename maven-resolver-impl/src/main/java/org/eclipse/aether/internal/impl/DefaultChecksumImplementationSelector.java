@@ -1,4 +1,4 @@
-package org.eclipse.aether.connector.basic.checksum;
+package org.eclipse.aether.internal.impl;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,10 +19,8 @@ package org.eclipse.aether.connector.basic.checksum;
  * under the License.
  */
 
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Locale;
+import java.util.Collections;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -30,20 +28,27 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.eclipse.aether.connector.basic.ChecksumImplementation;
-import org.eclipse.aether.connector.basic.ChecksumImplementationSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementation;
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelectorSupport;
 
 import static java.util.Objects.requireNonNull;
 
 /**
- * Default implementation of {@link ChecksumImplementationSelector}.
  */
 @Singleton
 @Named
-public class DefaultChecksumImplementationSelector
-    implements ChecksumImplementationSelector
+public final class DefaultChecksumImplementationSelector
+    extends ChecksumImplementationSelectorSupport
 {
     private final Map<String, Provider<ChecksumImplementation>> providers;
+
+    /**
+     * Ctor for ServiceLocator.
+     */
+    public DefaultChecksumImplementationSelector()
+    {
+        this( Collections.emptyMap() );
+    }
 
     @Inject
     public DefaultChecksumImplementationSelector( final Map<String, Provider<ChecksumImplementation>> providers )
@@ -54,34 +59,13 @@ public class DefaultChecksumImplementationSelector
     @Override
     public ChecksumImplementation select( final String algorithm ) throws NoSuchAlgorithmException
     {
-        requireNonNull( algorithm, "algorithm name must not be null" );
-        Provider<ChecksumImplementation> provider = providers.get( algorithm.toUpperCase( Locale.ENGLISH ) );
+        requireNonNull( algorithm, "algorithm must not be null" );
+        Provider<ChecksumImplementation> provider = providers.get( algorithm );
         if ( provider != null )
         {
             return provider.get();
         }
-
-        // fallback to MessageDigest backed one
-        MessageDigest messageDigest = MessageDigest.getInstance( algorithm );
-        return new ChecksumImplementation()
-        {
-            @Override
-            public void update( final ByteBuffer input )
-            {
-                messageDigest.update( input );
-            }
-
-            @Override
-            public void reset()
-            {
-                messageDigest.reset();
-            }
-
-            @Override
-            public byte[] digest()
-            {
-                return messageDigest.digest();
-            }
-        };
+        return super.select( algorithm );
     }
+
 }

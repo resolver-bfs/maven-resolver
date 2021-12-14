@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicy;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout.Checksum;
 import org.eclipse.aether.spi.io.FileProcessor;

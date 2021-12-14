@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.eclipse.aether.RepositoryListener;
@@ -40,6 +41,7 @@ import org.eclipse.aether.impl.OfflineController;
 import org.eclipse.aether.impl.RemoteRepositoryManager;
 import org.eclipse.aether.impl.RepositoryConnectorProvider;
 import org.eclipse.aether.impl.RepositoryEventDispatcher;
+import org.eclipse.aether.internal.impl.DefaultChecksumImplementationSelector;
 import org.eclipse.aether.internal.impl.DefaultTrackingFileManager;
 import org.eclipse.aether.internal.impl.TrackingFileManager;
 import org.eclipse.aether.internal.impl.synccontext.DefaultSyncContextFactory;
@@ -78,6 +80,8 @@ import org.eclipse.aether.internal.impl.Maven2RepositoryLayoutFactory;
 import org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory;
 import org.eclipse.aether.internal.impl.slf4j.Slf4jLoggerFactory;
 import org.eclipse.aether.named.providers.NoopNamedLockFactory;
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementation;
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicyProvider;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutFactory;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutProvider;
@@ -139,6 +143,8 @@ public class AetherModule
         .to( DefaultTransporterProvider.class ).in( Singleton.class );
         bind( ChecksumPolicyProvider.class ) //
         .to( DefaultChecksumPolicyProvider.class ).in( Singleton.class );
+        bind( ChecksumImplementationSelector.class ) //
+        .to( DefaultChecksumImplementationSelector.class ).in( Singleton.class );
         bind( RepositoryConnectorProvider.class ) //
         .to( DefaultRepositoryConnectorProvider.class ).in( Singleton.class );
         bind( RemoteRepositoryManager.class ) //
@@ -246,6 +252,14 @@ public class AetherModule
     {
         return Collections.emptySet();
     }
+
+    @Provides
+    @Singleton
+    Map<String, Provider<ChecksumImplementation>> provideChecksumImplementations()
+    {
+        return Collections.emptyMap();
+    }
+
 
     private static class Slf4jModule
         extends AbstractModule

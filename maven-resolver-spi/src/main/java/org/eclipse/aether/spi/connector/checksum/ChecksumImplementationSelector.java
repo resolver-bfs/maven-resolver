@@ -1,4 +1,4 @@
-package org.eclipse.aether.connector.basic;
+package org.eclipse.aether.spi.connector.checksum;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -22,7 +22,7 @@ package org.eclipse.aether.connector.basic;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Selector that selects implemntation based on passed in algorithm name.
+ * Selector that selects implementation based on passed in algorithm name.
  *
  * @since TBD
  */

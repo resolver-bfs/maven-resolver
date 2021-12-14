@@ -28,6 +28,7 @@ import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.spi.connector.RepositoryConnector;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicyProvider;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutProvider;
 import org.eclipse.aether.spi.connector.transport.TransporterProvider;
@@ -85,6 +86,7 @@ public final class BasicRepositoryConnectorFactory
         setTransporterProvider( locator.getService( TransporterProvider.class ) );
         setRepositoryLayoutProvider( locator.getService( RepositoryLayoutProvider.class ) );
         setChecksumPolicyProvider( locator.getService( ChecksumPolicyProvider.class ) );
+        setChecksumImplementationSelector( locator.getService( ChecksumImplementationSelector.class ) );
         setFileProcessor( locator.getService( FileProcessor.class ) );
     }
 

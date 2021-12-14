@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementation;
+import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
 import org.eclipse.aether.util.ChecksumUtils;
 
