@@ -56,7 +56,7 @@ public class ChecksumCalculatorTest
         {
             checksums.add( new RepositoryLayout.Checksum( algo, URI.create( "irrelevant" ) ) );
         }
-        return ChecksumCalculator.newInstance( new TestChecksumImplementationSelector(), file, checksums );
+        return ChecksumCalculator.newInstance( new TestChecksumAlgorithmSelector(), file, checksums );
     }
 
     private ByteBuffer toBuffer( String data )
@@ -119,14 +119,14 @@ public class ChecksumCalculatorTest
     @Test
     public void testUnknownAlgorithm()
     {
-        ChecksumCalculator calculator = newCalculator( "unknown", TestChecksumImplementationSelector.TEST_CHECKSUM, SHA1 );
+        ChecksumCalculator calculator = newCalculator( "unknown", TestChecksumAlgorithmSelector.TEST_CHECKSUM, SHA1 );
         calculator.init( 0 );
         calculator.update( toBuffer( "Hello World!" ) );
         Map<String, Object> digests = calculator.get();
         assertNotNull( digests );
         assertEquals( "2ef7bde608ce5404e97d5f042f95f89f1c232871", digests.get( SHA1 ) );
         assertTrue( digests.get( "unknown" ) instanceof NoSuchAlgorithmException );
-        assertEquals( "01020304", digests.get( TestChecksumImplementationSelector.TEST_CHECKSUM ) );
+        assertEquals( "01020304", digests.get( TestChecksumAlgorithmSelector.TEST_CHECKSUM ) );
         assertEquals( 3, digests.size() );
     }
 

@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelector;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicy;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout.Checksum;
 import org.eclipse.aether.spi.io.FileProcessor;
@@ -66,7 +66,7 @@ final class ChecksumValidator
 
     private final Collection<Checksum> checksums;
 
-    private final ChecksumImplementationSelector checksumImplementationSelector;
+    private final ChecksumAlgorithmSelector checksumAlgorithmSelector;
 
     private final Map<File, Object> checksumFiles;
 
@@ -75,7 +75,7 @@ final class ChecksumValidator
                        ChecksumFetcher checksumFetcher,
                        ChecksumPolicy checksumPolicy,
                        Collection<Checksum> checksums,
-                       ChecksumImplementationSelector checksumImplementationSelector )
+                       ChecksumAlgorithmSelector checksumAlgorithmSelector )
     {
         this.dataFile = dataFile;
         this.tempFiles = new HashSet<>();
@@ -83,7 +83,7 @@ final class ChecksumValidator
         this.checksumFetcher = checksumFetcher;
         this.checksumPolicy = checksumPolicy;
         this.checksums = checksums;
-        this.checksumImplementationSelector = checksumImplementationSelector;
+        this.checksumAlgorithmSelector = checksumAlgorithmSelector;
         checksumFiles = new HashMap<>();
     }
 
@@ -91,7 +91,7 @@ final class ChecksumValidator
     {
         if ( checksumPolicy != null )
         {
-            return ChecksumCalculator.newInstance( checksumImplementationSelector, targetFile, checksums );
+            return ChecksumCalculator.newInstance( checksumAlgorithmSelector, targetFile, checksums );
         }
         return null;
     }

@@ -33,7 +33,7 @@ import static java.util.Objects.requireNonNull;
 
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.internal.impl.DefaultArtifactResolver;
-import org.eclipse.aether.internal.impl.DefaultChecksumImplementationSelector;
+import org.eclipse.aether.internal.impl.DefaultChecksumAlgorithmSelector;
 import org.eclipse.aether.internal.impl.DefaultChecksumPolicyProvider;
 import org.eclipse.aether.internal.impl.DefaultTrackingFileManager;
 import org.eclipse.aether.internal.impl.TrackingFileManager;
@@ -59,7 +59,7 @@ import org.eclipse.aether.internal.impl.slf4j.Slf4jLoggerFactory;
 import org.eclipse.aether.internal.impl.synccontext.DefaultSyncContextFactory;
 import org.eclipse.aether.internal.impl.synccontext.named.NamedLockFactorySelector;
 import org.eclipse.aether.internal.impl.synccontext.named.SimpleNamedLockFactorySelector;
-import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelector;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicyProvider;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutFactory;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutProvider;
@@ -211,7 +211,7 @@ public final class DefaultServiceLocator
         addService( RepositoryLayoutFactory.class, Maven2RepositoryLayoutFactory.class );
         addService( TransporterProvider.class, DefaultTransporterProvider.class );
         addService( ChecksumPolicyProvider.class, DefaultChecksumPolicyProvider.class );
-        addService( ChecksumImplementationSelector.class, DefaultChecksumImplementationSelector.class );
+        addService( ChecksumAlgorithmSelector.class, DefaultChecksumAlgorithmSelector.class );
         addService( RepositoryConnectorProvider.class, DefaultRepositoryConnectorProvider.class );
         addService( RemoteRepositoryManager.class, DefaultRemoteRepositoryManager.class );
         addService( UpdateCheckManager.class, DefaultUpdateCheckManager.class );

@@ -19,23 +19,19 @@ package org.eclipse.aether.spi.connector.checksum;
  * under the License.
  */
 
-import java.nio.ByteBuffer;
+import java.security.NoSuchAlgorithmException;
 
 /**
- * Implementation performing checksum calculation for specific algorithm. Instances of this interface as stateful,
- * should be reused only after {@link #reset()}.
- *
- * <strong>Important note:</strong> if implementation of this interface is component, it MUST NOT be singleton, but
- * must adhere to "prototype" pattern. Alternative is just to implement a provider, and on each get invocation create
- * new instance.
+ * Selector that selects algorithm implementation based on passed in algorithm name.
  *
  * @since TBD
  */
-public interface ChecksumImplementation
+public interface ChecksumAlgorithmSelector
 {
-  void update( ByteBuffer input );
-
-  void reset();
-
-  byte[] digest();
+  /**
+   * Returns a new instance ready to perform checksum calculation for given algorithm, never {@code null}.
+   *
+   * @throws NoSuchAlgorithmException if algorithm asked for is not supported.
+   */
+  ChecksumAlgorithm select( String algorithm ) throws NoSuchAlgorithmException;
 }

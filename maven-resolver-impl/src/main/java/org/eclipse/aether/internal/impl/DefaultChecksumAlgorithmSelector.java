@@ -28,43 +28,45 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.eclipse.aether.spi.connector.checksum.ChecksumImplementation;
-import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelectorSupport;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithm;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelectorSupport;
 
 import static java.util.Objects.requireNonNull;
 
 /**
- * Default implementation of {@link org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector} that
+ * Default implementation of {@link ChecksumAlgorithmSelector} that
  * is extensible.
  *
  * @since TBD
  */
 @Singleton
 @Named
-public final class DefaultChecksumImplementationSelector
-    extends ChecksumImplementationSelectorSupport
+public final class DefaultChecksumAlgorithmSelector
+    extends ChecksumAlgorithmSelectorSupport
 {
-    private final Map<String, Provider<ChecksumImplementation>> providers;
+    private final Map<String, Provider<ChecksumAlgorithm>> providers;
 
     /**
      * Ctor for ServiceLocator.
      */
-    public DefaultChecksumImplementationSelector()
+    @Deprecated
+    public DefaultChecksumAlgorithmSelector()
     {
         this( Collections.emptyMap() );
     }
 
     @Inject
-    public DefaultChecksumImplementationSelector( final Map<String, Provider<ChecksumImplementation>> providers )
+    public DefaultChecksumAlgorithmSelector( final Map<String, Provider<ChecksumAlgorithm>> providers )
     {
         this.providers = requireNonNull( providers );
     }
 
     @Override
-    public ChecksumImplementation select( final String algorithm ) throws NoSuchAlgorithmException
+    public ChecksumAlgorithm select( final String algorithm ) throws NoSuchAlgorithmException
     {
         requireNonNull( algorithm, "algorithm must not be null" );
-        Provider<ChecksumImplementation> provider = providers.get( algorithm );
+        Provider<ChecksumAlgorithm> provider = providers.get( algorithm );
         if ( provider != null )
         {
             return provider.get();

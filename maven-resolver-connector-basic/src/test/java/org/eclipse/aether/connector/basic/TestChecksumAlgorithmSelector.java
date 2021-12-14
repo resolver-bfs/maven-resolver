@@ -22,25 +22,25 @@ package org.eclipse.aether.connector.basic;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 
-import org.eclipse.aether.spi.connector.checksum.ChecksumImplementation;
-import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
-import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelectorSupport;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithm;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelectorSupport;
 
 /**
- * Test implementation of {@link ChecksumImplementationSelector}.
+ * Test implementation of {@link ChecksumAlgorithmSelector}.
  */
-public class TestChecksumImplementationSelector
-    extends ChecksumImplementationSelectorSupport
+public class TestChecksumAlgorithmSelector
+    extends ChecksumAlgorithmSelectorSupport
 {
   public static final String TEST_CHECKSUM = "test";
 
   public static final byte[] TEST_CHECKSUM_VALUE = new byte[] { 0x1, 0x2, 0x3, 0x4 };
 
   @Override
-  public ChecksumImplementation select(final String algorithm) throws NoSuchAlgorithmException {
+  public ChecksumAlgorithm select(final String algorithm) throws NoSuchAlgorithmException {
     if ( TEST_CHECKSUM.equals( algorithm ) )
     {
-      return new ChecksumImplementation() {
+      return new ChecksumAlgorithm() {
         @Override
         public void update(final ByteBuffer input) {
 
@@ -52,7 +52,7 @@ public class TestChecksumImplementationSelector
         }
 
         @Override
-        public byte[] digest() {
+        public byte[] checksum() {
           return TEST_CHECKSUM_VALUE;
         }
       };

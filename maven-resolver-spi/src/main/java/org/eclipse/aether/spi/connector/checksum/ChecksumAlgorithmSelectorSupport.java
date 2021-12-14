@@ -26,17 +26,17 @@ import java.security.NoSuchAlgorithmException;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Support for implementation of {@link ChecksumImplementationSelector} with default behaviour.
+ * Support for implementation of {@link ChecksumAlgorithmSelector} with default behaviour.
  */
-public abstract class ChecksumImplementationSelectorSupport
-    implements ChecksumImplementationSelector
+public abstract class ChecksumAlgorithmSelectorSupport
+    implements ChecksumAlgorithmSelector
 {
     @Override
-    public ChecksumImplementation select( final String algorithm ) throws NoSuchAlgorithmException
+    public ChecksumAlgorithm select( final String algorithm ) throws NoSuchAlgorithmException
     {
         requireNonNull( algorithm, "algorithm name must not be null" );
         MessageDigest messageDigest = MessageDigest.getInstance( algorithm );
-        return new ChecksumImplementation()
+        return new ChecksumAlgorithm()
         {
             @Override
             public void update( final ByteBuffer input )
@@ -51,7 +51,7 @@ public abstract class ChecksumImplementationSelectorSupport
             }
 
             @Override
-            public byte[] digest()
+            public byte[] checksum()
             {
                 return messageDigest.digest();
             }

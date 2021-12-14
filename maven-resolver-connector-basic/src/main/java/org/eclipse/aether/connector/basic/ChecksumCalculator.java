@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.aether.spi.connector.checksum.ChecksumImplementation;
-import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithm;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelector;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
 import org.eclipse.aether.util.ChecksumUtils;
 
@@ -49,46 +49,46 @@ final class ChecksumCalculator
 
     static class Checksum
     {
-        final String algorithm;
+        final String algorithmName;
 
-        final ChecksumImplementation engine;
+        final ChecksumAlgorithm algorithm;
 
         Exception error;
 
-        Checksum( String algorithm, ChecksumImplementation engine )
+        Checksum( String algorithmName, ChecksumAlgorithm algorithm )
         {
+            this.algorithmName = requireNonNull( algorithmName );
             this.algorithm = requireNonNull( algorithm );
-            this.engine = requireNonNull( engine );
 
         }
 
-        Checksum( String algorithm, Exception error )
+        Checksum( String algorithmName, Exception error )
         {
-            this.algorithm = requireNonNull( algorithm );
-            this.engine = null;
+            this.algorithmName = requireNonNull( algorithmName );
+            this.algorithm = null;
             this.error = requireNonNull( error );
         }
 
         public void update( ByteBuffer buffer )
         {
-            if ( engine != null )
+            if ( algorithm != null )
             {
-                engine.update( buffer );
+                algorithm.update( buffer );
             }
         }
 
         public void reset()
         {
-            if ( engine != null )
+            if ( algorithm != null )
             {
-                engine.reset();
+                algorithm.reset();
                 error = null;
             }
         }
 
         public void error( Exception error )
         {
-            if ( engine != null )
+            if ( algorithm != null )
             {
                 this.error = error;
             }
@@ -100,7 +100,7 @@ final class ChecksumCalculator
             {
                 return error;
             }
-            return ChecksumUtils.toHexString( engine.digest() );
+            return ChecksumUtils.toHexString( algorithm.checksum() );
         }
 
     }
@@ -109,7 +109,7 @@ final class ChecksumCalculator
 
     private final File targetFile;
 
-    public static ChecksumCalculator newInstance( ChecksumImplementationSelector selector,
+    public static ChecksumCalculator newInstance( ChecksumAlgorithmSelector selector,
                                                   File targetFile,
                                                   Collection<RepositoryLayout.Checksum> checksums )
     {
@@ -120,7 +120,7 @@ final class ChecksumCalculator
         return new ChecksumCalculator( selector, targetFile, checksums );
     }
 
-    private ChecksumCalculator( ChecksumImplementationSelector selector,
+    private ChecksumCalculator( ChecksumAlgorithmSelector selector,
                                 File targetFile,
                                 Collection<RepositoryLayout.Checksum> checksums )
     {
@@ -220,7 +220,7 @@ final class ChecksumCalculator
         Map<String, Object> results = new HashMap<>();
         for ( Checksum checksum : checksums )
         {
-            results.put( checksum.algorithm, checksum.get() );
+            results.put( checksum.algorithmName, checksum.get() );
         }
         return results;
     }

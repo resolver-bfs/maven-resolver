@@ -47,7 +47,7 @@ import org.eclipse.aether.spi.connector.ArtifactUpload;
 import org.eclipse.aether.spi.connector.MetadataDownload;
 import org.eclipse.aether.spi.connector.MetadataUpload;
 import org.eclipse.aether.spi.connector.RepositoryConnector;
-import org.eclipse.aether.spi.connector.checksum.ChecksumImplementationSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelector;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicy;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicyProvider;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
@@ -100,7 +100,7 @@ final class BasicRepositoryConnector
 
     private final ChecksumPolicyProvider checksumPolicyProvider;
 
-    private final ChecksumImplementationSelector checksumImplementationSelector;
+    private final ChecksumAlgorithmSelector checksumAlgorithmSelector;
 
     private final PartialFile.Factory partialFileFactory;
 
@@ -119,7 +119,7 @@ final class BasicRepositoryConnector
                               TransporterProvider transporterProvider,
                               RepositoryLayoutProvider layoutProvider,
                               ChecksumPolicyProvider checksumPolicyProvider,
-                              ChecksumImplementationSelector checksumImplementationSelector,
+                              ChecksumAlgorithmSelector checksumAlgorithmSelector,
                               FileProcessor fileProcessor )
         throws NoRepositoryConnectorException
     {
@@ -140,7 +140,7 @@ final class BasicRepositoryConnector
             throw new NoRepositoryConnectorException( repository, e.getMessage(), e );
         }
         this.checksumPolicyProvider = checksumPolicyProvider;
-        this.checksumImplementationSelector = checksumImplementationSelector;
+        this.checksumAlgorithmSelector = checksumAlgorithmSelector;
 
         this.session = session;
         this.repository = repository;
@@ -415,7 +415,7 @@ final class BasicRepositoryConnector
             super( path, listener );
             this.file = requireNonNull( file, "destination file cannot be null" );
             checksumValidator = new ChecksumValidator( file, fileProcessor, this,
-                checksumPolicy, safe( checksums ), checksumImplementationSelector );
+                checksumPolicy, safe( checksums ), checksumAlgorithmSelector );
         }
 
         public void checkRemoteAccess()

@@ -194,7 +194,7 @@ public class ChecksumValidatorTest
 
     private ChecksumValidator newValidator( String... algos )
     {
-        return new ChecksumValidator( dataFile, new TestFileProcessor(), fetcher, policy, newChecksums( algos ), new TestChecksumImplementationSelector() );
+        return new ChecksumValidator( dataFile, new TestFileProcessor(), fetcher, policy, newChecksums( algos ), new TestChecksumAlgorithmSelector() );
     }
 
     private Map<String, ?> checksums( String... algoDigestPairs )
