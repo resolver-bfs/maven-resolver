@@ -65,11 +65,16 @@ final class ChecksumValidator
 
     private final Collection<Checksum> checksums;
 
+    private final ChecksumImplementationSelector checksumImplementationSelector;
+
     private final Map<File, Object> checksumFiles;
 
-    ChecksumValidator( File dataFile, FileProcessor fileProcessor,
-                              ChecksumFetcher checksumFetcher, ChecksumPolicy checksumPolicy,
-                              Collection<Checksum> checksums )
+    ChecksumValidator( File dataFile,
+                       FileProcessor fileProcessor,
+                       ChecksumFetcher checksumFetcher,
+                       ChecksumPolicy checksumPolicy,
+                       Collection<Checksum> checksums,
+                       ChecksumImplementationSelector checksumImplementationSelector )
     {
         this.dataFile = dataFile;
         this.tempFiles = new HashSet<>();
@@ -77,6 +82,7 @@ final class ChecksumValidator
         this.checksumFetcher = checksumFetcher;
         this.checksumPolicy = checksumPolicy;
         this.checksums = checksums;
+        this.checksumImplementationSelector = checksumImplementationSelector;
         checksumFiles = new HashMap<>();
     }
 
@@ -84,7 +90,7 @@ final class ChecksumValidator
     {
         if ( checksumPolicy != null )
         {
-            return ChecksumCalculator.newInstance( targetFile, checksums );
+            return ChecksumCalculator.newInstance( checksumImplementationSelector, targetFile, checksums );
         }
         return null;
     }

@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +37,8 @@ import java.util.Set;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
 import org.eclipse.aether.util.ChecksumUtils;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Calculates checksums for a downloaded file.
  */
@@ -48,45 +49,44 @@ final class ChecksumCalculator
     {
         final String algorithm;
 
-        final MessageDigest digest;
+        final ChecksumImplementation engine;
 
         Exception error;
 
-        Checksum( String algorithm )
+        Checksum( String algorithm, ChecksumImplementation engine )
         {
-            this.algorithm = algorithm;
-            MessageDigest digest = null;
-            try
-            {
-                digest = MessageDigest.getInstance( algorithm );
-            }
-            catch ( NoSuchAlgorithmException e )
-            {
-                error = e;
-            }
-            this.digest = digest;
+            this.algorithm = requireNonNull( algorithm );
+            this.engine = requireNonNull( engine );
+
+        }
+
+        Checksum( String algorithm, Exception error )
+        {
+            this.algorithm = requireNonNull( algorithm );
+            this.engine = null;
+            this.error = requireNonNull( error );
         }
 
         public void update( ByteBuffer buffer )
         {
-            if ( digest != null )
+            if ( engine != null )
             {
-                digest.update( buffer );
+                engine.update( buffer );
             }
         }
 
         public void reset()
         {
-            if ( digest != null )
+            if ( engine != null )
             {
-                digest.reset();
+                engine.reset();
                 error = null;
             }
         }
 
         public void error( Exception error )
         {
-            if ( digest != null )
+            if ( engine != null )
             {
                 this.error = error;
             }
@@ -98,7 +98,7 @@ final class ChecksumCalculator
             {
                 return error;
             }
-            return ChecksumUtils.toHexString( digest.digest() );
+            return ChecksumUtils.toHexString( engine.digest() );
         }
 
     }
@@ -107,16 +107,20 @@ final class ChecksumCalculator
 
     private final File targetFile;
 
-    public static ChecksumCalculator newInstance( File targetFile, Collection<RepositoryLayout.Checksum> checksums )
+    public static ChecksumCalculator newInstance( ChecksumImplementationSelector selector,
+                                                  File targetFile,
+                                                  Collection<RepositoryLayout.Checksum> checksums )
     {
         if ( checksums == null || checksums.isEmpty() )
         {
             return null;
         }
-        return new ChecksumCalculator( targetFile, checksums );
+        return new ChecksumCalculator( selector, targetFile, checksums );
     }
 
-    private ChecksumCalculator( File targetFile, Collection<RepositoryLayout.Checksum> checksums )
+    private ChecksumCalculator( ChecksumImplementationSelector selector,
+                                File targetFile,
+                                Collection<RepositoryLayout.Checksum> checksums )
     {
         this.checksums = new ArrayList<>();
         Set<String> algos = new HashSet<>();
@@ -125,7 +129,14 @@ final class ChecksumCalculator
             String algo = checksum.getAlgorithm();
             if ( algos.add( algo ) )
             {
-                this.checksums.add( new Checksum( algo ) );
+                try
+                {
+                    this.checksums.add( new Checksum( algo, selector.select( algo ) ) );
+                }
+                catch ( NoSuchAlgorithmException e )
+                {
+                    this.checksums.add( new Checksum( algo, e ) );
+                }
             }
         }
         this.targetFile = targetFile;

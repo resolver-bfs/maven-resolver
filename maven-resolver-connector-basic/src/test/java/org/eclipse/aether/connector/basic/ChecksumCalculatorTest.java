@@ -28,9 +28,11 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.aether.connector.basic.checksum.DefaultChecksumImplementationSelector;
 import org.eclipse.aether.internal.test.util.TestFileUtils;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
 import org.junit.Before;
@@ -56,7 +58,7 @@ public class ChecksumCalculatorTest
         {
             checksums.add( new RepositoryLayout.Checksum( algo, URI.create( "irrelevant" ) ) );
         }
-        return ChecksumCalculator.newInstance( file, checksums );
+        return ChecksumCalculator.newInstance( new DefaultChecksumImplementationSelector( Collections.emptyMap() ), file, checksums );
     }
 
     private ByteBuffer toBuffer( String data )

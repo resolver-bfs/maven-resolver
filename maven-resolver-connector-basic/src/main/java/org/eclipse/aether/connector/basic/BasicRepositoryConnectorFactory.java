@@ -51,6 +51,8 @@ public final class BasicRepositoryConnectorFactory
 
     private ChecksumPolicyProvider checksumPolicyProvider;
 
+    private ChecksumImplementationSelector checksumImplementationSelector;
+
     private FileProcessor fileProcessor;
 
     private float priority;
@@ -67,11 +69,14 @@ public final class BasicRepositoryConnectorFactory
 
     @Inject
     BasicRepositoryConnectorFactory( TransporterProvider transporterProvider, RepositoryLayoutProvider layoutProvider,
-                                     ChecksumPolicyProvider checksumPolicyProvider, FileProcessor fileProcessor )
+                                     ChecksumPolicyProvider checksumPolicyProvider,
+                                     ChecksumImplementationSelector checksumImplementationSelector,
+                                     FileProcessor fileProcessor )
     {
         setTransporterProvider( transporterProvider );
         setRepositoryLayoutProvider( layoutProvider );
         setChecksumPolicyProvider( checksumPolicyProvider );
+        setChecksumImplementationSelector( checksumImplementationSelector );
         setFileProcessor( fileProcessor );
     }
 
@@ -121,6 +126,20 @@ public final class BasicRepositoryConnectorFactory
     }
 
     /**
+     * Sets the checksum implementation selector to use for this component.
+     *
+     * @param checksumImplementationSelector The checksum implementation selector to use, must not be {@code null}.
+     * @return This component for chaining, never {@code null}.
+     */
+    public BasicRepositoryConnectorFactory setChecksumImplementationSelector(
+        ChecksumImplementationSelector checksumImplementationSelector )
+    {
+        this.checksumImplementationSelector = requireNonNull(
+                checksumImplementationSelector, "checksum implementation selector cannot be null" );
+        return this;
+    }
+
+    /**
      * Sets the file processor to use for this component.
      *
      * @param fileProcessor The file processor to use, must not be {@code null}.
@@ -156,7 +175,7 @@ public final class BasicRepositoryConnectorFactory
         requireNonNull( "repository", "repository cannot be null" );
 
         return new BasicRepositoryConnector( session, repository, transporterProvider, layoutProvider,
-                                             checksumPolicyProvider, fileProcessor );
+                                             checksumPolicyProvider, checksumImplementationSelector, fileProcessor );
     }
 
 }

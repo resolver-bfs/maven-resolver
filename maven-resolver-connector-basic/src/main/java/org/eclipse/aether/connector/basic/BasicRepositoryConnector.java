@@ -99,6 +99,8 @@ final class BasicRepositoryConnector
 
     private final ChecksumPolicyProvider checksumPolicyProvider;
 
+    private final ChecksumImplementationSelector checksumImplementationSelector;
+
     private final PartialFile.Factory partialFileFactory;
 
     private final int maxThreads;
@@ -111,9 +113,13 @@ final class BasicRepositoryConnector
 
     private boolean closed;
 
-    BasicRepositoryConnector( RepositorySystemSession session, RemoteRepository repository,
-                                     TransporterProvider transporterProvider, RepositoryLayoutProvider layoutProvider,
-                                     ChecksumPolicyProvider checksumPolicyProvider, FileProcessor fileProcessor )
+    BasicRepositoryConnector( RepositorySystemSession session,
+                              RemoteRepository repository,
+                              TransporterProvider transporterProvider,
+                              RepositoryLayoutProvider layoutProvider,
+                              ChecksumPolicyProvider checksumPolicyProvider,
+                              ChecksumImplementationSelector checksumImplementationSelector,
+                              FileProcessor fileProcessor )
         throws NoRepositoryConnectorException
     {
         try
@@ -133,6 +139,7 @@ final class BasicRepositoryConnector
             throw new NoRepositoryConnectorException( repository, e.getMessage(), e );
         }
         this.checksumPolicyProvider = checksumPolicyProvider;
+        this.checksumImplementationSelector = checksumImplementationSelector;
 
         this.session = session;
         this.repository = repository;
@@ -406,8 +413,8 @@ final class BasicRepositoryConnector
         {
             super( path, listener );
             this.file = requireNonNull( file, "destination file cannot be null" );
-            checksumValidator =
-                new ChecksumValidator( file, fileProcessor, this, checksumPolicy, safe( checksums ) );
+            checksumValidator = new ChecksumValidator( file, fileProcessor, this,
+                checksumPolicy, safe( checksums ), checksumImplementationSelector );
         }
 
         public void checkRemoteAccess()

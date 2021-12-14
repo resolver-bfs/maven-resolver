@@ -26,11 +26,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.aether.connector.basic.checksum.DefaultChecksumImplementationSelector;
 import org.eclipse.aether.internal.test.util.TestFileProcessor;
 import org.eclipse.aether.internal.test.util.TestFileUtils;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicy;
@@ -194,7 +196,7 @@ public class ChecksumValidatorTest
 
     private ChecksumValidator newValidator( String... algos )
     {
-        return new ChecksumValidator( dataFile, new TestFileProcessor(), fetcher, policy, newChecksums( algos ) );
+        return new ChecksumValidator( dataFile, new TestFileProcessor(), fetcher, policy, newChecksums( algos ), new DefaultChecksumImplementationSelector( Collections.emptyMap() ));
     }
 
     private Map<String, ?> checksums( String... algoDigestPairs )
