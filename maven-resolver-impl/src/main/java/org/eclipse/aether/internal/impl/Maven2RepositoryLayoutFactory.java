@@ -163,6 +163,12 @@ public final class Maven2RepositoryLayoutFactory
             return toUri( path.toString() );
         }
 
+        @Override
+        public List<String> getChecksumAlgorithms()
+        {
+            return checksumsAlgorithms;
+        }
+
         public List<Checksum> getChecksums( Artifact artifact, boolean upload, URI location )
         {
             return getChecksums( location );

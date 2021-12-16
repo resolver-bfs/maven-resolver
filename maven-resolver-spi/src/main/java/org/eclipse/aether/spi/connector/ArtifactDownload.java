@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.aether.RequestTrace;
 import org.eclipse.aether.artifact.Artifact;
@@ -42,6 +43,8 @@ public final class ArtifactDownload
     private boolean existenceCheck;
 
     private String checksumPolicy = "";
+
+    private Map<String, String> providedChecksums;
 
     private String context = "";
 
@@ -135,6 +138,30 @@ public final class ArtifactDownload
     public ArtifactDownload setChecksumPolicy( String checksumPolicy )
     {
         this.checksumPolicy = ( checksumPolicy != null ) ? checksumPolicy : "";
+        return this;
+    }
+
+    /**
+     * Gets the provided checksums for this transfer.
+     *
+     * @return The provided checksums for this transfer, if any, or {@code null}.
+     * @since TBD
+     */
+    public Map<String, String> getProvidedChecksums()
+    {
+        return providedChecksums;
+    }
+
+    /**
+     * Sets the provided checksums for this transfer.
+     *
+     * @param providedChecksums The provided checksums, may be {@code null}.
+     * @return This transfer for chaining, never {@code null}.
+     * @since TBD
+     */
+    public ArtifactDownload setProvidedChecksums( Map<String, String> providedChecksums )
+    {
+        this.providedChecksums = providedChecksums;
         return this;
     }
 

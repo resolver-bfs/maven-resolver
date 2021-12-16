@@ -127,7 +127,7 @@ public class ChecksumValidatorTest
 
         private List<URI> fetchedFiles = new ArrayList<>();
 
-        public boolean fetchChecksum( URI remote, File local )
+        public boolean fetchChecksum( String algorithm, URI remote, File local )
             throws Exception
         {
             fetchedFiles.add( remote );

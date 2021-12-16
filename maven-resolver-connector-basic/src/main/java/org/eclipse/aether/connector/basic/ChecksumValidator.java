@@ -46,7 +46,7 @@ final class ChecksumValidator
     interface ChecksumFetcher
     {
 
-        boolean fetchChecksum( URI remote, File local )
+        boolean fetchChecksum( String algorithm, URI remote, File local )
             throws Exception;
 
     }
@@ -154,7 +154,7 @@ final class ChecksumValidator
                 File tmp = createTempFile( checksumFile );
                 try
                 {
-                    if ( !checksumFetcher.fetchChecksum( checksum.getLocation(), tmp ) )
+                    if ( !checksumFetcher.fetchChecksum( checksum.getAlgorithm(), checksum.getLocation(), tmp ) )
                     {
                         continue;
                     }

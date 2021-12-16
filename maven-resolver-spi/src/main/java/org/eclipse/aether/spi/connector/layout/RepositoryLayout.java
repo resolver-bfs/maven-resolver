@@ -152,6 +152,13 @@ public interface RepositoryLayout
     URI getLocation( Metadata metadata, boolean upload );
 
     /**
+     * Returns the list of supported checksum algorithms for this remote repository layout.
+     *
+     * @return The list of algorithm names that are configured for this remote repository layout, never {@code null}.
+     */
+    List<String> getChecksumAlgorithms();
+
+    /**
      * Gets the checksums files that a remote repository keeps to help detect data corruption during transfers of the
      * specified artifact.
      * 

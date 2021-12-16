@@ -231,7 +231,8 @@ final class BasicRepositoryConnector
                 checksums = layout.getChecksums( transfer.getMetadata(), false, location );
             }
 
-            Runnable task = new GetTaskRunner( location, transfer.getFile(), checksumPolicy, checksums, listener );
+            Runnable task = new GetTaskRunner( location, transfer.getFile(), checksumPolicy,
+                checksums, transfer.getProvidedChecksums(), listener );
             executor.execute( errorForwarder.wrap( task ) );
         }
 
@@ -257,7 +258,8 @@ final class BasicRepositoryConnector
                     checksums = layout.getChecksums( transfer.getArtifact(), false, location );
                 }
 
-                task = new GetTaskRunner( location, transfer.getFile(), checksumPolicy, checksums, listener );
+                task = new GetTaskRunner( location, transfer.getFile(), checksumPolicy,
+                    checksums, transfer.getProvidedChecksums(), listener );
             }
             executor.execute( errorForwarder.wrap( task ) );
         }
@@ -399,13 +401,18 @@ final class BasicRepositoryConnector
 
         private final File file;
 
+        private final Map<String, String> providedChecksums;
+
         private final ChecksumValidator checksumValidator;
 
         GetTaskRunner( URI path, File file, ChecksumPolicy checksumPolicy,
-                              List<RepositoryLayout.Checksum> checksums, TransferTransportListener<?> listener )
+                       List<RepositoryLayout.Checksum> checksums, Map<String, String> providedChecksums,
+                       TransferTransportListener<?> listener )
         {
             super( path, listener );
             this.file = requireNonNull( file, "destination file cannot be null" );
+            this.providedChecksums =
+                providedChecksums == null ? Collections.emptyMap() : providedChecksums;
             checksumValidator =
                 new ChecksumValidator( file, fileProcessor, this, checksumPolicy, safe( checksums ) );
         }
@@ -416,9 +423,15 @@ final class BasicRepositoryConnector
             transporter.peek( new PeekTask( path ) );
         }
 
-        public boolean fetchChecksum( URI remote, File local )
+        public boolean fetchChecksum( String algorithm, URI remote, File local )
             throws Exception
         {
+            String providedChecksum = providedChecksums.get( algorithm );
+            if ( providedChecksum != null )
+            {
+                fileProcessor.write( local, providedChecksum );
+                return true;
+            }
             try
             {
                 transporter.get( new GetTask( remote ).setDataFile( local ) );

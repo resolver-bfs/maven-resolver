@@ -41,6 +41,7 @@ import org.eclipse.aether.impl.RemoteRepositoryManager;
 import org.eclipse.aether.impl.RepositoryConnectorProvider;
 import org.eclipse.aether.impl.RepositoryEventDispatcher;
 import org.eclipse.aether.internal.impl.DefaultTrackingFileManager;
+import org.eclipse.aether.internal.impl.FileDownloadChecksumSource;
 import org.eclipse.aether.internal.impl.TrackingFileManager;
 import org.eclipse.aether.internal.impl.synccontext.DefaultSyncContextFactory;
 import org.eclipse.aether.internal.impl.synccontext.named.NamedLockFactorySelector;
@@ -78,6 +79,7 @@ import org.eclipse.aether.internal.impl.Maven2RepositoryLayoutFactory;
 import org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory;
 import org.eclipse.aether.internal.impl.slf4j.Slf4jLoggerFactory;
 import org.eclipse.aether.named.providers.NoopNamedLockFactory;
+import org.eclipse.aether.spi.connector.DownloadChecksumSource;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicyProvider;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutFactory;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutProvider;
@@ -161,6 +163,9 @@ public class AetherModule
         .to( EnhancedLocalRepositoryManagerFactory.class ).in( Singleton.class );
         bind( TrackingFileManager.class ).to( DefaultTrackingFileManager.class ).in( Singleton.class );
 
+        bind( DownloadChecksumSource.class ).annotatedWith( Names.named( FileDownloadChecksumSource.NAME ) ) //
+            .to( FileDownloadChecksumSource.class ).in( Singleton.class );
+
         bind( NamedLockFactorySelector.class ).to( SimpleNamedLockFactorySelector.class ).in( Singleton.class );
         bind( SyncContextFactory.class ).to( DefaultSyncContextFactory.class ).in( Singleton.class );
         bind( org.eclipse.aether.impl.SyncContextFactory.class )
@@ -187,6 +192,17 @@ public class AetherModule
 
         install( new Slf4jModule() );
 
+    }
+
+    @Provides
+    @Singleton
+    Map<String, DownloadChecksumSource> provideDownloadChecksumSources(
+        @Named( FileDownloadChecksumSource.NAME ) DownloadChecksumSource fileDownloadChecksumSource
+    )
+    {
+        Map<String, DownloadChecksumSource> downloadChecksumSources = new HashMap<>();
+        downloadChecksumSources.put( FileDownloadChecksumSource.NAME, fileDownloadChecksumSource );
+        return downloadChecksumSources;
     }
 
     @Provides

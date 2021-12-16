@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import static java.util.Objects.requireNonNull;
+
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -45,6 +47,7 @@ import org.eclipse.aether.impl.OfflineController;
 import org.eclipse.aether.impl.RemoteRepositoryManager;
 import org.eclipse.aether.impl.RepositoryConnectorProvider;
 import org.eclipse.aether.impl.RepositoryEventDispatcher;
+import org.eclipse.aether.spi.connector.DownloadChecksumSource;
 import org.eclipse.aether.spi.synccontext.SyncContextFactory;
 import org.eclipse.aether.impl.UpdateCheck;
 import org.eclipse.aether.impl.UpdateCheckManager;
@@ -106,6 +109,8 @@ public class DefaultArtifactResolver
 
     private OfflineController offlineController;
 
+    private Map<String, DownloadChecksumSource> downloadChecksumSources;
+
     public DefaultArtifactResolver()
     {
         // enables default constructor
@@ -117,7 +122,8 @@ public class DefaultArtifactResolver
                              VersionResolver versionResolver, UpdateCheckManager updateCheckManager,
                              RepositoryConnectorProvider repositoryConnectorProvider,
                              RemoteRepositoryManager remoteRepositoryManager, SyncContextFactory syncContextFactory,
-                             OfflineController offlineController )
+                             OfflineController offlineController,
+                             Map<String, DownloadChecksumSource> downloadChecksumSources )
     {
         setFileProcessor( fileProcessor );
         setRepositoryEventDispatcher( repositoryEventDispatcher );
@@ -127,6 +133,7 @@ public class DefaultArtifactResolver
         setRemoteRepositoryManager( remoteRepositoryManager );
         setSyncContextFactory( syncContextFactory );
         setOfflineController( offlineController );
+        setDownloadChecksumSources( downloadChecksumSources );
     }
 
     public void initService( ServiceLocator locator )
@@ -139,6 +146,7 @@ public class DefaultArtifactResolver
         setRemoteRepositoryManager( locator.getService( RemoteRepositoryManager.class ) );
         setSyncContextFactory( locator.getService( SyncContextFactory.class ) );
         setOfflineController( locator.getService( OfflineController.class ) );
+        setDownloadChecksumSources( Collections.emptyMap() );
     }
 
     /**
@@ -200,6 +208,14 @@ public class DefaultArtifactResolver
     public DefaultArtifactResolver setOfflineController( OfflineController offlineController )
     {
         this.offlineController = requireNonNull( offlineController, "offline controller cannot be null" );
+        return this;
+    }
+
+    public DefaultArtifactResolver setDownloadChecksumSources(
+        Map<String, DownloadChecksumSource> downloadChecksumSources )
+    {
+        this.downloadChecksumSources = requireNonNull( downloadChecksumSources,
+            "download checksum sources cannot be null" );
         return this;
     }
 
@@ -551,6 +567,19 @@ public class DefaultArtifactResolver
             download.setRequestContext( item.request.getRequestContext() );
             download.setListener( SafeTransferListener.wrap( session ) );
             download.setTrace( item.trace );
+
+            for ( DownloadChecksumSource downloadChecksumSource : downloadChecksumSources.values() )
+            {
+                Map<String, String> providedChecksums = downloadChecksumSource.getProvidedChecksums(
+                    session, group.repository, artifact );
+
+                if ( providedChecksums != null )
+                {
+                    download.setProvidedChecksums( providedChecksums );
+                    break;
+                }
+            }
+
             if ( item.local.getFile() != null )
             {
                 download.setFile( item.local.getFile() );
