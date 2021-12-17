@@ -22,8 +22,8 @@ By default, resolver will fetch the payload checksum from remote repository. The
 checksums are used to enforce transport validity (ensure that download was not 
 corrupted during transfer).
 
-This implies, that to get one payload (artifact JAR, POM or metadata), resolver 
-needs to issue two HTTP requests: one to get the artifact itself, and one to 
+This implies, that to get one artifact or metadata, resolver 
+needs to issue two HTTP requests: one to get the payload itself, and one to 
 get the reference checksum.
 
 By using "smart checksums" feature, we are able to half the issued HTTP request 
