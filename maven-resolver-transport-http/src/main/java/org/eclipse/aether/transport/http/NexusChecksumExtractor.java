@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * A component extracting Nexus2 style-checksums from response headers.
+ * A component extracting Nexus2 ETag "shielded" style-checksums from response headers.
  *
  * @since TBD
  */

@@ -28,7 +28,14 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * A component extracting {@code x-checksum-XXX}` style-checksums from response headers.
+ * A component extracting {@code x-} non-standard style checksums from response headers.
+ * Tried headers (in order):
+ * <ul>
+ *     <li>{@code x-checksum-sha1} - Maven Central and other CDNs</li>
+ *     <li>{@code x-checksum-md5} - Maven Central and other CDNs</li>
+ *     <li>{@code x-goog-meta-checksum-sha1} - GCS</li>
+ *     <li>{@code x-goog-meta-checksum-md5} - GCS</li>
+ * </ul>
  *
  * @since TBD
  */
@@ -40,26 +47,38 @@ public class XChecksumChecksumExtractor
     @Override
     public Map<String, String> extractChecksums( HttpResponse response )
     {
+        String value;
         // Central style: x-checksum-sha1: c74edb60ca2a0b57ef88d9a7da28f591e3d4ce7b
-        String sha1 = extractChecksum( response, "sha1" );
-        if ( sha1 != null )
+        value = extractChecksum( response, "x-checksum-sha1" );
+        if ( value != null )
         {
-            return Collections.singletonMap( "SHA-1", sha1 );
+            return Collections.singletonMap( "SHA-1", value );
         }
         // Central style: x-checksum-md5: 9ad0d8e3482767c122e85f83567b8ce6
-        String md5 = extractChecksum( response, "md5" );
-        if ( md5 != null )
+        value = extractChecksum( response, "x-checksum-md5" );
+        if ( value != null )
         {
-            return Collections.singletonMap( "MD5", md5 );
+            return Collections.singletonMap( "MD5", value );
+        }
+        // Google style: x-goog-meta-checksum-sha1: c74edb60ca2a0b57ef88d9a7da28f591e3d4ce7b
+        value = extractChecksum( response, "x-goog-meta-checksum-sha1" );
+        if ( value != null )
+        {
+            return Collections.singletonMap( "SHA-1", value );
+        }
+        // Central style: x-goog-meta-checksum-sha1: 9ad0d8e3482767c122e85f83567b8ce6
+        value = extractChecksum( response, "x-goog-meta-checksum-md5" );
+        if ( value != null )
+        {
+            return Collections.singletonMap( "MD5", value );
         }
 
         return null;
     }
 
-    private String extractChecksum( HttpResponse response, String algorithm )
+    private String extractChecksum( HttpResponse response, String name )
     {
-        // Central style: x-checksum-sha1: c74edb60ca2a0b57ef88d9a7da28f591e3d4ce7b
-        Header header = response.getFirstHeader( "x-checksum-" + algorithm );
+        Header header = response.getFirstHeader( name );
         return header != null ? header.getValue() : null;
     }
 }

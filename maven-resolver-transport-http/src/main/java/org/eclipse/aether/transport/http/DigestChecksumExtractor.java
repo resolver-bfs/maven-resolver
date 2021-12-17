@@ -31,8 +31,10 @@ import java.util.Map;
 
 /**
  * A component extracting Digest header value from response.
+ * This class is EXPERIMENTAL and INCOMPLETE.
  *
  * @since TBD
+ * @see <a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-digest-headers-07">Digest Fields (DRAFT)</a>
  */
 @Singleton
 @Named( "digest" )

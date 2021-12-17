@@ -39,12 +39,15 @@ way. Naturally, this means only SHA-1 is available in artifact response header.
 Emitted by: Sonatype Nexus2 only.
 
 
-## Non-standard headers
+## Non-standard `X-` headers
 
-Some MRMs and Maven Central emit headers `x-checksum-sha1` and `x-checksum-md5`. Resolver
-will detect these and use their value.
+Maven Central emit headers `x-checksum-sha1` and `x-checksum-md5` along with artifact response. 
+Google GCS on the other hand uses `x-goog-meta-checksum-sha1` and `x-goog-meta-checksum-md5` heaers.
+Resolver will detect these and use their value.
 
-Emitted by: Maven Central and Artifactory, maybe by some others as well.
+Emitted by: Maven Central and some MRMs and . Kinda , maybe by some others as well.
+
+$$
 
 
 ## Digest Headers (draft)
