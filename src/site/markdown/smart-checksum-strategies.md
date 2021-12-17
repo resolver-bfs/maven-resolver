@@ -46,7 +46,7 @@ Maven Central emits headers `x-checksum-sha1` and `x-checksum-md5` along with ar
 Google GCS on the other hand uses `x-goog-meta-checksum-sha1` and `x-goog-meta-checksum-md5` 
 headers. Resolver will detect these and use their value.
 
-Emitted by: Maven Central, GCS, and some CDNs and more.
+Emitted by: Maven Central, GCS, some CDNs and probably more.
 
 
 ## Digest Headers (draft)
@@ -57,4 +57,3 @@ As experiment, support for [draft-ietf-httpbis-digest-headers-07](https://www.ie
 has been added. Untested, unfinished.
 
 Emitted by: ?
-
