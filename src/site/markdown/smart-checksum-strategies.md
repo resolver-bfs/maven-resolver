@@ -31,9 +31,9 @@ the artifact response itself (as HTTP Headers), so we are able to get the
 artifact and it's checksum using only one request.
 
 
-## Sonatype Nexus2
+## Sonatype Nexus 2
 
-Sonatype Nexus2 uses SHA-1 hash to generate `ETag` header in "shielded" (a la Plexus Cipher)
+Sonatype Nexus 2 uses SHA-1 hash to generate `ETag` header in "shielded" (a la Plexus Cipher)
 way. Naturally, this means only SHA-1 is available in artifact response header.
 
 Emitted by: Sonatype Nexus2 only.
@@ -42,12 +42,10 @@ Emitted by: Sonatype Nexus2 only.
 ## Non-standard `X-` headers
 
 Maven Central emit headers `x-checksum-sha1` and `x-checksum-md5` along with artifact response. 
-Google GCS on the other hand uses `x-goog-meta-checksum-sha1` and `x-goog-meta-checksum-md5` heaers.
-Resolver will detect these and use their value.
+Google GCS on the other hand uses `x-goog-meta-checksum-sha1` and `x-goog-meta-checksum-md5` 
+headers. Resolver will detect these and use their value.
 
-Emitted by: Maven Central and some MRMs and . Kinda , maybe by some others as well.
-
-$$
+Emitted by: Maven Central, GCS, some CDNs, and more.
 
 
 ## Digest Headers (draft)
