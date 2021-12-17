@@ -41,11 +41,11 @@ Emitted by: Sonatype Nexus2 only.
 
 ## Non-standard `X-` headers
 
-Maven Central emit headers `x-checksum-sha1` and `x-checksum-md5` along with artifact response. 
+Maven Central emits headers `x-checksum-sha1` and `x-checksum-md5` along with artifact response. 
 Google GCS on the other hand uses `x-goog-meta-checksum-sha1` and `x-goog-meta-checksum-md5` 
 headers. Resolver will detect these and use their value.
 
-Emitted by: Maven Central, GCS, some CDNs, and more.
+Emitted by: Maven Central, GCS, and some CDNs and more.
 
 
 ## Digest Headers (draft)
