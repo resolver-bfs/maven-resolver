@@ -22,13 +22,14 @@ By default, resolver will fetch the payload checksum from remote repository. The
 checksums are used to enforce transport validity (ensure that download was not 
 corrupted during transfer).
 
-This implies, that to get one artifact, resolver needs to issue two HTTP reuests:
-one to get the artifact itself, and one to get the checksum.
+This implies, that to get one payload (artifact JAR, POM or metadata), resolver 
+needs to issue two HTTP requests: one to get the artifact itself, and one to 
+get the reference checksum.
 
 By using "smart checksums" feature, we are able to half the issued HTTP request 
-count, as many services and Maven Central emit the reference checksums in
-the artifact response itself (as HTTP Headers), so we are able to get the
-artifact and it's checksum using only one request.
+count, as many services along Maven Central emits the reference checksums in
+the artifact response itself (as HTTP headers), hence, we are able to get the
+artifact and reference checksum using only one request.
 
 
 ## Sonatype Nexus 2
