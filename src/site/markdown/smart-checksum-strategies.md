@@ -18,16 +18,17 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-By default, Resolver will fetch the payload checksum from remote repository. These
-checksums are used to enforce transport validity (that download is not corrupted).
+By default, resolver will fetch the payload checksum from remote repository. These
+checksums are used to enforce transport validity (ensure that download was not 
+corrupted during transfer).
 
-This implies, that to get one artifact, resolver needs to issue two HTTP reuest:
+This implies, that to get one artifact, resolver needs to issue two HTTP reuests:
 one to get the artifact itself, and one to get the checksum.
 
 By using "smart checksums" feature, we are able to half the issued HTTP request 
 count, as many services and Maven Central emit the reference checksums in
-the artifact response itself, as HTTP Headers, so we are able to get the
-artifact and it's checksum in only one request.
+the artifact response itself (as HTTP Headers), so we are able to get the
+artifact and it's checksum using only one request.
 
 
 ## Sonatype Nexus2
@@ -37,12 +38,14 @@ way. Naturally, this means only SHA-1 is available in artifact response header.
 
 Emitted by: Sonatype Nexus2 only.
 
+
 ## Non-standard headers
 
 Some MRMs and Maven Central emit headers `x-checksum-sha1` and `x-checksum-md5`. Resolver
 will detect these and use their value.
 
-Emitted by: Maven Central and Artifactory.
+Emitted by: Maven Central and Artifactory, maybe by some others as well.
+
 
 ## Digest Headers (draft)
 
@@ -52,5 +55,4 @@ As experiment, support for [draft-ietf-httpbis-digest-headers-07](https://www.ie
 has been added. Untested, unfinished.
 
 Emitted by: ?
-
 
