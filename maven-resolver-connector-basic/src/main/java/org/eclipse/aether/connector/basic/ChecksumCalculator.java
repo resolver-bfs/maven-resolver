@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,7 +34,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithm;
-import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactory;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactorySelector;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
 import org.eclipse.aether.util.ChecksumUtils;
 
@@ -49,49 +49,32 @@ final class ChecksumCalculator
 
     static class Checksum
     {
-        final String algorithmName;
+        final ChecksumAlgorithmFactory checksumAlgorithmFactory;
 
-        final ChecksumAlgorithm algorithm;
+        ChecksumAlgorithm algorithm;
 
         Exception error;
 
-        Checksum( String algorithmName, ChecksumAlgorithm algorithm )
+        Checksum( ChecksumAlgorithmFactory checksumAlgorithmFactory )
         {
-            this.algorithmName = requireNonNull( algorithmName );
-            this.algorithm = requireNonNull( algorithm );
-
-        }
-
-        Checksum( String algorithmName, Exception error )
-        {
-            this.algorithmName = requireNonNull( algorithmName );
-            this.algorithm = null;
-            this.error = requireNonNull( error );
-        }
-
-        public void update( ByteBuffer buffer )
-        {
-            if ( algorithm != null )
-            {
-                algorithm.update( buffer );
-            }
+            this.checksumAlgorithmFactory = requireNonNull( checksumAlgorithmFactory );
+            this.algorithm = checksumAlgorithmFactory.getAlgorithm();
         }
 
         public void reset()
         {
-            if ( algorithm != null )
-            {
-                algorithm.reset();
-                error = null;
-            }
+            this.algorithm = checksumAlgorithmFactory.getAlgorithm();
+            this.error = null;
+        }
+
+        public void update( ByteBuffer buffer )
+        {
+            this.algorithm.update( buffer );
         }
 
         public void error( Exception error )
         {
-            if ( algorithm != null )
-            {
-                this.error = error;
-            }
+            this.error = error;
         }
 
         public Object get()
@@ -109,9 +92,9 @@ final class ChecksumCalculator
 
     private final File targetFile;
 
-    public static ChecksumCalculator newInstance( ChecksumAlgorithmSelector selector,
+    public static ChecksumCalculator newInstance( ChecksumAlgorithmFactorySelector selector,
                                                   File targetFile,
-                                                  Collection<RepositoryLayout.Checksum> checksums )
+                                                  Collection<RepositoryLayout.ChecksumLocation> checksums )
     {
         if ( checksums == null || checksums.isEmpty() )
         {
@@ -120,25 +103,17 @@ final class ChecksumCalculator
         return new ChecksumCalculator( selector, targetFile, checksums );
     }
 
-    private ChecksumCalculator( ChecksumAlgorithmSelector selector,
+    private ChecksumCalculator( ChecksumAlgorithmFactorySelector selector,
                                 File targetFile,
-                                Collection<RepositoryLayout.Checksum> checksums )
+                                Collection<RepositoryLayout.ChecksumLocation> checksumLocations )
     {
         this.checksums = new ArrayList<>();
         Set<String> algos = new HashSet<>();
-        for ( RepositoryLayout.Checksum checksum : checksums )
+        for ( RepositoryLayout.ChecksumLocation checksumLocation : checksumLocations )
         {
-            String algo = checksum.getAlgorithm();
-            if ( algos.add( algo ) )
+            if ( algos.add( checksumLocation.getChecksumAlgorithmFactory().getName() ) )
             {
-                try
-                {
-                    this.checksums.add( new Checksum( algo, selector.select( algo ) ) );
-                }
-                catch ( NoSuchAlgorithmException e )
-                {
-                    this.checksums.add( new Checksum( algo, e ) );
-                }
+                this.checksums.add( new Checksum( checksumLocation.getChecksumAlgorithmFactory() ) );
             }
         }
         this.targetFile = targetFile;
@@ -167,7 +142,7 @@ final class ChecksumCalculator
                 if ( read < 0 )
                 {
                     throw new IOException( targetFile + " contains only " + total
-                                               + " bytes, cannot resume download from offset " + dataOffset );
+                            + " bytes, cannot resume download from offset " + dataOffset );
                 }
                 total += read;
                 if ( total > dataOffset )
@@ -220,7 +195,7 @@ final class ChecksumCalculator
         Map<String, Object> results = new HashMap<>();
         for ( Checksum checksum : checksums )
         {
-            results.put( checksum.algorithmName, checksum.get() );
+            results.put( checksum.checksumAlgorithmFactory.getName(), checksum.get() );
         }
         return results;
     }

@@ -28,7 +28,7 @@ import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.spi.connector.RepositoryConnector;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
-import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactorySelector;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicyProvider;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutProvider;
 import org.eclipse.aether.spi.connector.transport.TransporterProvider;
@@ -52,7 +52,7 @@ public final class BasicRepositoryConnectorFactory
 
     private ChecksumPolicyProvider checksumPolicyProvider;
 
-    private ChecksumAlgorithmSelector checksumAlgorithmSelector;
+    private ChecksumAlgorithmFactorySelector checksumAlgorithmFactorySelector;
 
     private FileProcessor fileProcessor;
 
@@ -71,13 +71,13 @@ public final class BasicRepositoryConnectorFactory
     @Inject
     BasicRepositoryConnectorFactory( TransporterProvider transporterProvider, RepositoryLayoutProvider layoutProvider,
                                      ChecksumPolicyProvider checksumPolicyProvider,
-                                     ChecksumAlgorithmSelector checksumAlgorithmSelector,
+                                     ChecksumAlgorithmFactorySelector checksumAlgorithmFactorySelector,
                                      FileProcessor fileProcessor )
     {
         setTransporterProvider( transporterProvider );
         setRepositoryLayoutProvider( layoutProvider );
         setChecksumPolicyProvider( checksumPolicyProvider );
-        setChecksumAlgorithmSelector( checksumAlgorithmSelector );
+        setChecksumAlgorithmFactorySelector( checksumAlgorithmFactorySelector );
         setFileProcessor( fileProcessor );
     }
 
@@ -86,7 +86,7 @@ public final class BasicRepositoryConnectorFactory
         setTransporterProvider( locator.getService( TransporterProvider.class ) );
         setRepositoryLayoutProvider( locator.getService( RepositoryLayoutProvider.class ) );
         setChecksumPolicyProvider( locator.getService( ChecksumPolicyProvider.class ) );
-        setChecksumAlgorithmSelector( locator.getService( ChecksumAlgorithmSelector.class ) );
+        setChecksumAlgorithmFactorySelector( locator.getService( ChecksumAlgorithmFactorySelector.class ) );
         setFileProcessor( locator.getService( FileProcessor.class ) );
     }
 
@@ -130,14 +130,14 @@ public final class BasicRepositoryConnectorFactory
     /**
      * Sets the checksum algorithm selector to use for this component.
      *
-     * @param checksumAlgorithmSelector The checksum algorithm selector to use, must not be {@code null}.
+     * @param checksumAlgorithmFactorySelector The checksum algorithm selector to use, must not be {@code null}.
      * @return This component for chaining, never {@code null}.
      */
-    public BasicRepositoryConnectorFactory setChecksumAlgorithmSelector(
-        ChecksumAlgorithmSelector checksumAlgorithmSelector )
+    public BasicRepositoryConnectorFactory setChecksumAlgorithmFactorySelector(
+        ChecksumAlgorithmFactorySelector checksumAlgorithmFactorySelector )
     {
-        this.checksumAlgorithmSelector = requireNonNull(
-                checksumAlgorithmSelector, "checksum algorithm selector cannot be null" );
+        this.checksumAlgorithmFactorySelector = requireNonNull(
+                checksumAlgorithmFactorySelector, "checksum algorithm factory selector cannot be null" );
         return this;
     }
 
@@ -177,7 +177,7 @@ public final class BasicRepositoryConnectorFactory
         requireNonNull( "repository", "repository cannot be null" );
 
         return new BasicRepositoryConnector( session, repository, transporterProvider, layoutProvider,
-                                             checksumPolicyProvider, checksumAlgorithmSelector, fileProcessor );
+                                             checksumPolicyProvider, checksumAlgorithmFactorySelector, fileProcessor );
     }
 
 }

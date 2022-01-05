@@ -34,9 +34,9 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
@@ -65,8 +65,6 @@ public class DiscriminatingNameMapper implements NameMapper
      * Configuration property to pass in hostname
      */
     private static final String CONFIG_PROP_HOSTNAME = "aether.syncContext.named.discriminating.hostname";
-
-    private static final String DEFAULT_DISCRIMINATOR_DIGEST = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
 
     private static final String DEFAULT_HOSTNAME = "localhost";
 
@@ -115,25 +113,22 @@ public class DiscriminatingNameMapper implements NameMapper
             String hostname = ConfigUtils.getString( session, this.hostname, CONFIG_PROP_HOSTNAME );
             File basedir = session.getLocalRepository().getBasedir();
             discriminator = hostname + ":" + basedir;
-            try
-            {
-                Map<String, Object> checksums = ChecksumUtils
-                        .calc( discriminator.getBytes( StandardCharsets.UTF_8 ), Collections.singletonList( "SHA-1" ) );
-                Object checksum = checksums.get( "SHA-1" );
-
-                if ( checksum instanceof Exception )
-                {
-                    throw (Exception) checksum;
-                }
-
-                return String.valueOf( checksum );
-            }
-            catch ( Exception e )
-            {
-                LOGGER.warn( "Failed to calculate discriminator digest, using '{}'", DEFAULT_DISCRIMINATOR_DIGEST, e );
-                return DEFAULT_DISCRIMINATOR_DIGEST;
-            }
+            return sha1String( discriminator );
         }
         return discriminator;
+    }
+
+    private String sha1String( String string )
+    {
+        try
+        {
+            return ChecksumUtils.toHexString(
+                    MessageDigest.getInstance( "SHA-1" ).digest( string.getBytes( StandardCharsets.UTF_8 ) )
+            );
+        }
+        catch ( NoSuchAlgorithmException e )
+        {
+            throw new IllegalStateException( "Java must support SHA-1 to run resolver" );
+        }
     }
 }

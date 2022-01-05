@@ -1,4 +1,4 @@
-package org.eclipse.aether.spi.connector.checksum;
+package org.eclipse.aether.internal.impl.checksum;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,19 +19,26 @@ package org.eclipse.aether.spi.connector.checksum;
  * under the License.
  */
 
-import java.security.NoSuchAlgorithmException;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
- * Selector that selects algorithm implementation based on passed in algorithm name.
+ * The SHA-1 checksum type.
  *
  * @since TBD
  */
-public interface ChecksumAlgorithmSelector
+@Singleton
+@Named( ChecksumAlgorithmFactorySHA1.NAME )
+public class ChecksumAlgorithmFactorySHA1
+        extends MessageDigestChecksumAlgorithmFactorySupport
 {
-  /**
-   * Returns a new instance ready to perform checksum calculation for given algorithm, never {@code null}.
-   *
-   * @throws NoSuchAlgorithmException if algorithm asked for is not supported.
-   */
-  ChecksumAlgorithm select( String algorithm ) throws NoSuchAlgorithmException;
+    public static final String NAME = "SHA-1";
+
+    @SuppressWarnings( "checkstyle:magicnumber" )
+    @Inject
+    public ChecksumAlgorithmFactorySHA1()
+    {
+        super( NAME, "sha1" );
+    }
 }

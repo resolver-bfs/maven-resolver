@@ -25,13 +25,14 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactory;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactorySelector;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicy;
-import org.eclipse.aether.spi.connector.layout.RepositoryLayout.Checksum;
+import org.eclipse.aether.spi.connector.layout.RepositoryLayout.ChecksumLocation;
 import org.eclipse.aether.spi.io.FileProcessor;
 import org.eclipse.aether.transfer.ChecksumFailureException;
 import org.eclipse.aether.util.ChecksumUtils;
@@ -64,9 +65,9 @@ final class ChecksumValidator
 
     private final ChecksumPolicy checksumPolicy;
 
-    private final Collection<Checksum> checksums;
+    private final Map<String, ChecksumLocation> checksumLocations;
 
-    private final ChecksumAlgorithmSelector checksumAlgorithmSelector;
+    private final ChecksumAlgorithmFactorySelector checksumAlgorithmSelector;
 
     private final Map<File, Object> checksumFiles;
 
@@ -74,24 +75,25 @@ final class ChecksumValidator
                        FileProcessor fileProcessor,
                        ChecksumFetcher checksumFetcher,
                        ChecksumPolicy checksumPolicy,
-                       Collection<Checksum> checksums,
-                       ChecksumAlgorithmSelector checksumAlgorithmSelector )
+                       Collection<ChecksumLocation> checksums,
+                       ChecksumAlgorithmFactorySelector checksumAlgorithmSelector )
     {
         this.dataFile = dataFile;
         this.tempFiles = new HashSet<>();
         this.fileProcessor = fileProcessor;
         this.checksumFetcher = checksumFetcher;
         this.checksumPolicy = checksumPolicy;
-        this.checksums = checksums;
+        this.checksumLocations = new LinkedHashMap<>();
+        checksums.forEach( c -> this.checksumLocations.put( c.getChecksumAlgorithmFactory().getName(), c ) );
         this.checksumAlgorithmSelector = checksumAlgorithmSelector;
-        checksumFiles = new HashMap<>();
+        this.checksumFiles = new HashMap<>();
     }
 
     public ChecksumCalculator newChecksumCalculator( File targetFile )
     {
         if ( checksumPolicy != null )
         {
-            return ChecksumCalculator.newInstance( checksumAlgorithmSelector, targetFile, checksums );
+            return ChecksumCalculator.newInstance( checksumAlgorithmSelector, targetFile, checksumLocations.values() );
         }
         return null;
     }
@@ -128,14 +130,15 @@ final class ChecksumValidator
 
             String actual = String.valueOf( calculated );
             String expected = entry.getValue().toString();
-            checksumFiles.put( getChecksumFile( algo ), expected );
+            ChecksumAlgorithmFactory factory = checksumLocations.get( algo ).getChecksumAlgorithmFactory();
+            checksumFiles.put( getChecksumFile( factory ), expected );
 
             if ( !isEqualChecksum( expected, actual ) )
             {
-                checksumPolicy.onChecksumMismatch( algo, ChecksumPolicy.KIND_UNOFFICIAL,
+                checksumPolicy.onChecksumMismatch( factory.getName(), ChecksumPolicy.KIND_UNOFFICIAL,
                                                    new ChecksumFailureException( expected, actual ) );
             }
-            else if ( checksumPolicy.onChecksumMatch( algo, ChecksumPolicy.KIND_UNOFFICIAL ) )
+            else if ( checksumPolicy.onChecksumMatch( factory.getName(), ChecksumPolicy.KIND_UNOFFICIAL ) )
             {
                 return true;
             }
@@ -146,29 +149,30 @@ final class ChecksumValidator
     private boolean validateExternalChecksums( Map<String, ?> actualChecksums )
         throws ChecksumFailureException
     {
-        for ( Checksum checksum : checksums )
+        for ( ChecksumLocation checksumLocation : checksumLocations.values() )
         {
-            String algo = checksum.getAlgorithm();
-            Object calculated = actualChecksums.get( algo );
+            ChecksumAlgorithmFactory factory = checksumLocation.getChecksumAlgorithmFactory();
+            Object calculated = actualChecksums.get( factory.getName() );
             if ( calculated instanceof Exception )
             {
-                checksumPolicy.onChecksumError( algo, 0, new ChecksumFailureException( (Exception) calculated ) );
+                checksumPolicy.onChecksumError(
+                        factory.getName(), 0, new ChecksumFailureException( (Exception) calculated ) );
                 continue;
             }
             try
             {
-                File checksumFile = getChecksumFile( checksum.getAlgorithm() );
+                File checksumFile = getChecksumFile( checksumLocation.getChecksumAlgorithmFactory() );
                 File tmp = createTempFile( checksumFile );
                 try
                 {
-                    if ( !checksumFetcher.fetchChecksum( checksum.getLocation(), tmp ) )
+                    if ( !checksumFetcher.fetchChecksum( checksumLocation.getLocation(), tmp ) )
                     {
                         continue;
                     }
                 }
                 catch ( Exception e )
                 {
-                    checksumPolicy.onChecksumError( algo, 0, new ChecksumFailureException( e ) );
+                    checksumPolicy.onChecksumError( factory.getName(), 0, new ChecksumFailureException( e ) );
                     continue;
                 }
 
@@ -178,16 +182,17 @@ final class ChecksumValidator
 
                 if ( !isEqualChecksum( expected, actual ) )
                 {
-                    checksumPolicy.onChecksumMismatch( algo, 0, new ChecksumFailureException( expected, actual ) );
+                    checksumPolicy.onChecksumMismatch(
+                            factory.getName(), 0, new ChecksumFailureException( expected, actual ) );
                 }
-                else if ( checksumPolicy.onChecksumMatch( algo, 0 ) )
+                else if ( checksumPolicy.onChecksumMatch( factory.getName(), 0 ) )
                 {
                     return true;
                 }
             }
             catch ( IOException e )
             {
-                checksumPolicy.onChecksumError( algo, 0, new ChecksumFailureException( e ) );
+                checksumPolicy.onChecksumError( factory.getName(), 0, new ChecksumFailureException( e ) );
             }
         }
         return false;
@@ -198,10 +203,9 @@ final class ChecksumValidator
         return expected.equalsIgnoreCase( actual );
     }
 
-    private File getChecksumFile( String algorithm )
+    private File getChecksumFile( ChecksumAlgorithmFactory factory )
     {
-        String ext = algorithm.replace( "-", "" ).toLowerCase( Locale.ENGLISH );
-        return new File( dataFile.getPath() + '.' + ext );
+        return new File( dataFile.getPath() + '.' + factory.getExtension() );
     }
 
     private File createTempFile( File path )

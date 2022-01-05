@@ -29,7 +29,6 @@ import org.junit.Test;
 
 public class FailChecksumPolicyTest
 {
-
     private FailChecksumPolicy policy;
 
     private ChecksumFailureException exception;

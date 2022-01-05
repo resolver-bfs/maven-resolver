@@ -41,9 +41,11 @@ import org.eclipse.aether.impl.OfflineController;
 import org.eclipse.aether.impl.RemoteRepositoryManager;
 import org.eclipse.aether.impl.RepositoryConnectorProvider;
 import org.eclipse.aether.impl.RepositoryEventDispatcher;
-import org.eclipse.aether.internal.impl.DefaultChecksumAlgorithmSelector;
 import org.eclipse.aether.internal.impl.DefaultTrackingFileManager;
 import org.eclipse.aether.internal.impl.TrackingFileManager;
+import org.eclipse.aether.internal.impl.checksum.ChecksumAlgorithmFactoryMD5;
+import org.eclipse.aether.internal.impl.checksum.ChecksumAlgorithmFactorySHA1;
+import org.eclipse.aether.internal.impl.checksum.DefaultChecksumAlgorithmFactorySelector;
 import org.eclipse.aether.internal.impl.synccontext.DefaultSyncContextFactory;
 import org.eclipse.aether.internal.impl.synccontext.named.NamedLockFactorySelector;
 import org.eclipse.aether.internal.impl.synccontext.named.SimpleNamedLockFactorySelector;
@@ -81,8 +83,9 @@ import org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory;
 import org.eclipse.aether.internal.impl.slf4j.Slf4jLoggerFactory;
 import org.eclipse.aether.named.providers.NoopNamedLockFactory;
 import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithm;
-import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmSelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactorySelector;
 import org.eclipse.aether.spi.connector.checksum.ChecksumPolicyProvider;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactory;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutFactory;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayoutProvider;
 import org.eclipse.aether.spi.connector.transport.TransporterProvider;
@@ -103,10 +106,10 @@ import com.google.inject.name.Names;
  * repository connector and transporter factories to access remote repositories.
  *
  * @noextend This class must not be extended by clients and will eventually be marked {@code final} without prior
- *           notice.
+ * notice.
  */
 public class AetherModule
-    extends AbstractModule
+        extends AbstractModule
 {
 
     /**
@@ -124,48 +127,52 @@ public class AetherModule
     protected void configure()
     {
         bind( RepositorySystem.class ) //
-        .to( DefaultRepositorySystem.class ).in( Singleton.class );
+                .to( DefaultRepositorySystem.class ).in( Singleton.class );
         bind( ArtifactResolver.class ) //
-        .to( DefaultArtifactResolver.class ).in( Singleton.class );
+                .to( DefaultArtifactResolver.class ).in( Singleton.class );
         bind( DependencyCollector.class ) //
-        .to( DefaultDependencyCollector.class ).in( Singleton.class );
+                .to( DefaultDependencyCollector.class ).in( Singleton.class );
         bind( Deployer.class ) //
-        .to( DefaultDeployer.class ).in( Singleton.class );
+                .to( DefaultDeployer.class ).in( Singleton.class );
         bind( Installer.class ) //
-        .to( DefaultInstaller.class ).in( Singleton.class );
+                .to( DefaultInstaller.class ).in( Singleton.class );
         bind( MetadataResolver.class ) //
-        .to( DefaultMetadataResolver.class ).in( Singleton.class );
+                .to( DefaultMetadataResolver.class ).in( Singleton.class );
         bind( RepositoryLayoutProvider.class ) //
-        .to( DefaultRepositoryLayoutProvider.class ).in( Singleton.class );
+                .to( DefaultRepositoryLayoutProvider.class ).in( Singleton.class );
         bind( RepositoryLayoutFactory.class ).annotatedWith( Names.named( "maven2" ) ) //
-        .to( Maven2RepositoryLayoutFactory.class ).in( Singleton.class );
+                .to( Maven2RepositoryLayoutFactory.class ).in( Singleton.class );
         bind( TransporterProvider.class ) //
-        .to( DefaultTransporterProvider.class ).in( Singleton.class );
+                .to( DefaultTransporterProvider.class ).in( Singleton.class );
         bind( ChecksumPolicyProvider.class ) //
-        .to( DefaultChecksumPolicyProvider.class ).in( Singleton.class );
-        bind( ChecksumAlgorithmSelector.class ) //
-        .to( DefaultChecksumAlgorithmSelector.class ).in( Singleton.class );
+                .to( DefaultChecksumPolicyProvider.class ).in( Singleton.class );
         bind( RepositoryConnectorProvider.class ) //
-        .to( DefaultRepositoryConnectorProvider.class ).in( Singleton.class );
+                .to( DefaultRepositoryConnectorProvider.class ).in( Singleton.class );
         bind( RemoteRepositoryManager.class ) //
-        .to( DefaultRemoteRepositoryManager.class ).in( Singleton.class );
+                .to( DefaultRemoteRepositoryManager.class ).in( Singleton.class );
         bind( UpdateCheckManager.class ) //
-        .to( DefaultUpdateCheckManager.class ).in( Singleton.class );
+                .to( DefaultUpdateCheckManager.class ).in( Singleton.class );
         bind( UpdatePolicyAnalyzer.class ) //
-        .to( DefaultUpdatePolicyAnalyzer.class ).in( Singleton.class );
+                .to( DefaultUpdatePolicyAnalyzer.class ).in( Singleton.class );
         bind( FileProcessor.class ) //
-        .to( DefaultFileProcessor.class ).in( Singleton.class );
+                .to( DefaultFileProcessor.class ).in( Singleton.class );
         bind( RepositoryEventDispatcher.class ) //
-        .to( DefaultRepositoryEventDispatcher.class ).in( Singleton.class );
+                .to( DefaultRepositoryEventDispatcher.class ).in( Singleton.class );
         bind( OfflineController.class ) //
-        .to( DefaultOfflineController.class ).in( Singleton.class );
+                .to( DefaultOfflineController.class ).in( Singleton.class );
         bind( LocalRepositoryProvider.class ) //
-        .to( DefaultLocalRepositoryProvider.class ).in( Singleton.class );
+                .to( DefaultLocalRepositoryProvider.class ).in( Singleton.class );
         bind( LocalRepositoryManagerFactory.class ).annotatedWith( Names.named( "simple" ) ) //
-        .to( SimpleLocalRepositoryManagerFactory.class ).in( Singleton.class );
+                .to( SimpleLocalRepositoryManagerFactory.class ).in( Singleton.class );
         bind( LocalRepositoryManagerFactory.class ).annotatedWith( Names.named( "enhanced" ) ) //
-        .to( EnhancedLocalRepositoryManagerFactory.class ).in( Singleton.class );
+                .to( EnhancedLocalRepositoryManagerFactory.class ).in( Singleton.class );
         bind( TrackingFileManager.class ).to( DefaultTrackingFileManager.class ).in( Singleton.class );
+
+        bind( ChecksumAlgorithmFactory.class ).annotatedWith( Names.named( ChecksumAlgorithmFactorySHA1.NAME ) )
+                .to( ChecksumAlgorithmFactorySHA1.class );
+        bind( ChecksumAlgorithmFactory.class ).annotatedWith( Names.named( ChecksumAlgorithmFactoryMD5.NAME ) )
+                .to( ChecksumAlgorithmFactoryMD5.class );
+        bind( ChecksumAlgorithmFactorySelector.class ).to( DefaultChecksumAlgorithmFactorySelector.class );
 
         bind( NamedLockFactorySelector.class ).to( SimpleNamedLockFactorySelector.class ).in( Singleton.class );
         bind( SyncContextFactory.class ).to( DefaultSyncContextFactory.class ).in( Singleton.class );
@@ -174,22 +181,22 @@ public class AetherModule
                 .in( Singleton.class );
 
         bind( NameMapper.class ).annotatedWith( Names.named( StaticNameMapper.NAME ) )
-            .to( StaticNameMapper.class ).in( Singleton.class );
+                .to( StaticNameMapper.class ).in( Singleton.class );
         bind( NameMapper.class ).annotatedWith( Names.named( GAVNameMapper.NAME ) )
-            .to( GAVNameMapper.class ).in( Singleton.class );
+                .to( GAVNameMapper.class ).in( Singleton.class );
         bind( NameMapper.class ).annotatedWith( Names.named( DiscriminatingNameMapper.NAME ) )
-            .to( DiscriminatingNameMapper.class ).in( Singleton.class );
+                .to( DiscriminatingNameMapper.class ).in( Singleton.class );
         bind( NameMapper.class ).annotatedWith( Names.named( FileGAVNameMapper.NAME ) )
-            .to( FileGAVNameMapper.class ).in( Singleton.class );
+                .to( FileGAVNameMapper.class ).in( Singleton.class );
 
         bind( NamedLockFactory.class ).annotatedWith( Names.named( NoopNamedLockFactory.NAME ) )
-            .to( NoopNamedLockFactory.class ).in( Singleton.class );
+                .to( NoopNamedLockFactory.class ).in( Singleton.class );
         bind( NamedLockFactory.class ).annotatedWith( Names.named( LocalReadWriteLockNamedLockFactory.NAME ) )
-            .to( LocalReadWriteLockNamedLockFactory.class ).in( Singleton.class );
+                .to( LocalReadWriteLockNamedLockFactory.class ).in( Singleton.class );
         bind( NamedLockFactory.class ).annotatedWith( Names.named( LocalSemaphoreNamedLockFactory.NAME ) )
-            .to( LocalSemaphoreNamedLockFactory.class ).in( Singleton.class );
+                .to( LocalSemaphoreNamedLockFactory.class ).in( Singleton.class );
         bind( NamedLockFactory.class ).annotatedWith( Names.named( FileLockNamedLockFactory.NAME ) )
-            .to( FileLockNamedLockFactory.class ).in( Singleton.class );
+                .to( FileLockNamedLockFactory.class ).in( Singleton.class );
 
         install( new Slf4jModule() );
 
@@ -197,11 +204,23 @@ public class AetherModule
 
     @Provides
     @Singleton
+    Map<String, ChecksumAlgorithmFactory> provideChecksumTypes(
+            @Named( ChecksumAlgorithmFactorySHA1.NAME ) ChecksumAlgorithmFactory sha1,
+            @Named( ChecksumAlgorithmFactoryMD5.NAME ) ChecksumAlgorithmFactory md5 )
+    {
+        Map<String, ChecksumAlgorithmFactory> checksumTypes = new HashMap<>();
+        checksumTypes.put( ChecksumAlgorithmFactorySHA1.NAME, sha1 );
+        checksumTypes.put( ChecksumAlgorithmFactoryMD5.NAME, md5 );
+        return Collections.unmodifiableMap( checksumTypes );
+    }
+
+    @Provides
+    @Singleton
     Map<String, NameMapper> provideNameMappers(
-        @Named( StaticNameMapper.NAME ) NameMapper staticNameMapper,
-        @Named( GAVNameMapper.NAME ) NameMapper gavNameMapper,
-        @Named( DiscriminatingNameMapper.NAME ) NameMapper discriminatingNameMapper,
-        @Named( FileGAVNameMapper.NAME ) NameMapper fileGavNameMapper )
+            @Named( StaticNameMapper.NAME ) NameMapper staticNameMapper,
+            @Named( GAVNameMapper.NAME ) NameMapper gavNameMapper,
+            @Named( DiscriminatingNameMapper.NAME ) NameMapper discriminatingNameMapper,
+            @Named( FileGAVNameMapper.NAME ) NameMapper fileGavNameMapper )
     {
         Map<String, NameMapper> nameMappers = new HashMap<>();
         nameMappers.put( StaticNameMapper.NAME, staticNameMapper );
@@ -261,14 +280,14 @@ public class AetherModule
     }
 
     private static class Slf4jModule
-        extends AbstractModule
+            extends AbstractModule
     {
 
         @Override
         protected void configure()
         {
             bind( LoggerFactory.class ) //
-            .to( Slf4jLoggerFactory.class );
+                    .to( Slf4jLoggerFactory.class );
         }
 
         @Provides

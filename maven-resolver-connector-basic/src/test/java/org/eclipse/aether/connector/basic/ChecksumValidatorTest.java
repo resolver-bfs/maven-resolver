@@ -19,6 +19,8 @@ package org.eclipse.aether.connector.basic;
  * under the License.
  */
 
+import static org.eclipse.aether.connector.basic.TestChecksumAlgorithmSelector.MD5;
+import static org.eclipse.aether.connector.basic.TestChecksumAlgorithmSelector.SHA1;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -50,7 +52,7 @@ public class ChecksumValidatorTest
 
         boolean tolerateFailure;
 
-        private List<String> callbacks = new ArrayList<>();
+        private final List<String> callbacks = new ArrayList<>();
 
         private Object conclusion;
 
@@ -125,7 +127,7 @@ public class ChecksumValidatorTest
 
         List<File> checksumFiles = new ArrayList<>();
 
-        private List<URI> fetchedFiles = new ArrayList<>();
+        private final List<URI> fetchedFiles = new ArrayList<>();
 
         public boolean fetchChecksum( URI remote, File local )
             throws Exception
@@ -167,34 +169,32 @@ public class ChecksumValidatorTest
 
     }
 
-    private static final String SHA1 = "SHA-1";
-
-    private static final String MD5 = "MD5";
-
     private StubChecksumPolicy policy;
 
     private StubChecksumFetcher fetcher;
 
     private File dataFile;
 
-    private static RepositoryLayout.Checksum newChecksum( String algo )
+    private static final TestChecksumAlgorithmSelector selector = new TestChecksumAlgorithmSelector();
+
+    private static RepositoryLayout.ChecksumLocation newChecksum( String factory )
     {
-        return RepositoryLayout.Checksum.forLocation( URI.create( "file" ), algo );
+        return RepositoryLayout.ChecksumLocation.forLocation( URI.create( "file" ), selector.select(factory) );
     }
 
-    private List<RepositoryLayout.Checksum> newChecksums( String... algos )
+    private List<RepositoryLayout.ChecksumLocation> newChecksums( String... factories )
     {
-        List<RepositoryLayout.Checksum> checksums = new ArrayList<>();
-        for ( String algo : algos )
+        List<RepositoryLayout.ChecksumLocation> checksums = new ArrayList<>();
+        for ( String factory : factories )
         {
-            checksums.add( newChecksum( algo ) );
+            checksums.add( newChecksum( factory ) );
         }
         return checksums;
     }
 
-    private ChecksumValidator newValidator( String... algos )
+    private ChecksumValidator newValidator( String... factories )
     {
-        return new ChecksumValidator( dataFile, new TestFileProcessor(), fetcher, policy, newChecksums( algos ), new TestChecksumAlgorithmSelector() );
+        return new ChecksumValidator( dataFile, new TestFileProcessor(), fetcher, policy, newChecksums( factories ), new TestChecksumAlgorithmSelector() );
     }
 
     private Map<String, ?> checksums( String... algoDigestPairs )

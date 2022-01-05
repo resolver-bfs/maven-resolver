@@ -8,9 +8,9 @@ package org.eclipse.aether.internal.impl;
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *  http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import static java.util.Objects.requireNonNull;
 
 abstract class AbstractChecksumPolicy
-    implements ChecksumPolicy
+        implements ChecksumPolicy
 {
 
     protected final Logger logger = LoggerFactory.getLogger( getClass() );
@@ -40,16 +40,18 @@ abstract class AbstractChecksumPolicy
         this.resource = resource;
     }
 
-    public boolean onChecksumMatch( String algorithm, int kind )
+    @Override
+    public boolean onChecksumMatch( String name, int kind )
     {
-        requireNonNull( algorithm, "algorithm cannot be null" );
+        requireNonNull( name, "name cannot be null" );
         return true;
     }
 
-    public void onChecksumMismatch( String algorithm, int kind, ChecksumFailureException exception )
-        throws ChecksumFailureException
+    @Override
+    public void onChecksumMismatch( String name, int kind, ChecksumFailureException exception )
+            throws ChecksumFailureException
     {
-        requireNonNull( algorithm, "algorithm cannot be null" );
+        requireNonNull( name, "name cannot be null" );
         requireNonNull( exception, "exception cannot be null" );
         if ( ( kind & KIND_UNOFFICIAL ) == 0 )
         {
@@ -57,16 +59,17 @@ abstract class AbstractChecksumPolicy
         }
     }
 
-    public void onChecksumError( String algorithm, int kind, ChecksumFailureException exception )
-        throws ChecksumFailureException
+    @Override
+    public void onChecksumError( String name, int kind, ChecksumFailureException exception )
+            throws ChecksumFailureException
     {
-        requireNonNull( algorithm, "algorithm cannot be null" );
+        requireNonNull( name, "name cannot be null" );
         requireNonNull( exception, "exception cannot be null" );
-        logger.debug( "Could not validate {} checksum for {}", algorithm, resource.getResourceName(), exception );
+        logger.debug( "Could not validate {} checksum for {}", name, resource.getResourceName(), exception );
     }
 
     public void onNoMoreChecksums()
-        throws ChecksumFailureException
+            throws ChecksumFailureException
     {
         throw new ChecksumFailureException( "Checksum validation failed, no checksums available" );
     }

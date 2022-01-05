@@ -19,6 +19,10 @@ package org.eclipse.aether.connector.basic;
  * under the License.
  */
 
+import static org.eclipse.aether.connector.basic.TestChecksumAlgorithmSelector.MD5;
+import static org.eclipse.aether.connector.basic.TestChecksumAlgorithmSelector.SHA1;
+import static org.eclipse.aether.connector.basic.TestChecksumAlgorithmSelector.SHA256;
+import static org.eclipse.aether.connector.basic.TestChecksumAlgorithmSelector.SHA512;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -34,27 +38,22 @@ import java.util.Map;
 import org.eclipse.aether.internal.test.util.TestFileUtils;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ChecksumCalculatorTest
 {
 
-    private static final String SHA512 = "SHA-512";
-
-    private static final String SHA256 = "SHA-256";
-
-    private static final String SHA1 = "SHA-1";
-
-    private static final String MD5 = "MD5";
-
     private File file;
+
+    private final TestChecksumAlgorithmSelector selector = new TestChecksumAlgorithmSelector();
 
     private ChecksumCalculator newCalculator( String... algos )
     {
-        List<RepositoryLayout.Checksum> checksums = new ArrayList<>();
+        List<RepositoryLayout.ChecksumLocation> checksums = new ArrayList<>();
         for ( String algo : algos )
         {
-            checksums.add( new RepositoryLayout.Checksum( algo, URI.create( "irrelevant" ) ) );
+            checksums.add( new RepositoryLayout.ChecksumLocation( selector.select( algo ), URI.create( "irrelevant" ) ) );
         }
         return ChecksumCalculator.newInstance( new TestChecksumAlgorithmSelector(), file, checksums );
     }
@@ -116,6 +115,7 @@ public class ChecksumCalculatorTest
         assertEquals( 4, digests.size() );
     }
 
+    @Ignore("Resolver now fails early with unsupported checksums")
     @Test
     public void testUnknownAlgorithm()
     {

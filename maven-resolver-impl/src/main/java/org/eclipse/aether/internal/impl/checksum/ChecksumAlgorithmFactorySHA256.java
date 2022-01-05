@@ -1,4 +1,4 @@
-package org.eclipse.aether.spi.connector.checksum;
+package org.eclipse.aether.internal.impl.checksum;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,24 +19,27 @@ package org.eclipse.aether.spi.connector.checksum;
  * under the License.
  */
 
-import java.nio.ByteBuffer;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
- * Implementation performing checksum calculation for specific algorithm. Instances of this interface are stateful,
- * should not be reused.
+ * The SHA-256 checksum type. Note: using cryptographically safe algorithm for <strong>checksums</strong> is waste of
+ *  * CPU cycles, energy and bandwidth.
  *
  * @since TBD
  */
-public interface ChecksumAlgorithm
+@Singleton
+@Named( ChecksumAlgorithmFactorySHA256.NAME )
+public class ChecksumAlgorithmFactorySHA256
+        extends MessageDigestChecksumAlgorithmFactorySupport
 {
-    /**
-     * Updates the checksum algorithm inner state with input.
-     */
-    void update( ByteBuffer input );
+    public static final String NAME = "SHA-256";
 
-    /**
-     * Returns the algorithm end result as byte array. After invoking this method, this instance should be
-     * discarded and not used anymore.
-     */
-    byte[] checksum();
+    @SuppressWarnings( "checkstyle:magicnumber" )
+    @Inject
+    public ChecksumAlgorithmFactorySHA256()
+    {
+        super( NAME, "sha256" );
+    }
 }
