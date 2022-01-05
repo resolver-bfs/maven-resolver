@@ -115,8 +115,7 @@ public class ChecksumCalculatorTest
         assertEquals( 4, digests.size() );
     }
 
-    @Ignore("Resolver now fails early with unsupported checksums")
-    @Test
+    @Test( expected = IllegalArgumentException.class )
     public void testUnknownAlgorithm()
     {
         ChecksumCalculator calculator = newCalculator( "unknown", TestChecksumAlgorithmSelector.TEST_CHECKSUM, SHA1 );

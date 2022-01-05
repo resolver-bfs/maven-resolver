@@ -33,6 +33,7 @@ import org.eclipse.aether.metadata.Metadata;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithm;
 import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactory;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactorySupport;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout.ChecksumLocation;
 import org.eclipse.aether.transfer.NoRepositoryLayoutException;
@@ -41,28 +42,28 @@ import org.junit.Test;
 
 public class Maven2RepositoryLayoutFactoryTest
 {
-    private ChecksumAlgorithmFactory SHA512 = new ChecksumAlgorithmFactory("SHA-512", "sha512") {
+    private ChecksumAlgorithmFactory SHA512 = new ChecksumAlgorithmFactorySupport("SHA-512", "sha512") {
         @Override
         public ChecksumAlgorithm getAlgorithm() {
             throw new RuntimeException("this should not happen");
         }
     };
 
-    private ChecksumAlgorithmFactory SHA256 = new ChecksumAlgorithmFactory("SHA-256", "sha256") {
+    private ChecksumAlgorithmFactory SHA256 = new ChecksumAlgorithmFactorySupport("SHA-256", "sha256") {
         @Override
         public ChecksumAlgorithm getAlgorithm() {
             throw new RuntimeException("this should not happen");
         }
     };
 
-    private ChecksumAlgorithmFactory SHA1 = new ChecksumAlgorithmFactory("SHA-1", "sha1") {
+    private ChecksumAlgorithmFactory SHA1 = new ChecksumAlgorithmFactorySupport("SHA-1", "sha1") {
         @Override
         public ChecksumAlgorithm getAlgorithm() {
             throw new RuntimeException("this should not happen");
         }
     };
 
-    private ChecksumAlgorithmFactory MD5 = new ChecksumAlgorithmFactory("MD5", "md5") {
+    private ChecksumAlgorithmFactory MD5 = new ChecksumAlgorithmFactorySupport("MD5", "md5") {
         @Override
         public ChecksumAlgorithm getAlgorithm() {
             throw new RuntimeException("this should not happen");

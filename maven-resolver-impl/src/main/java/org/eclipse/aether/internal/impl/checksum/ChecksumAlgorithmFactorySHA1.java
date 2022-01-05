@@ -35,7 +35,6 @@ public class ChecksumAlgorithmFactorySHA1
 {
     public static final String NAME = "SHA-1";
 
-    @SuppressWarnings( "checkstyle:magicnumber" )
     @Inject
     public ChecksumAlgorithmFactorySHA1()
     {

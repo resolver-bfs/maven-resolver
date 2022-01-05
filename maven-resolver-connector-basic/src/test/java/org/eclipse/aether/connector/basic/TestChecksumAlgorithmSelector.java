@@ -33,6 +33,7 @@ import java.util.Set;
 import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithm;
 import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactory;
 import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactorySelector;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactorySupport;
 
 /**
  * Test implementation of {@link ChecksumAlgorithmFactorySelector}.
@@ -70,7 +71,7 @@ public class TestChecksumAlgorithmSelector
     {
         if ( TEST_CHECKSUM.equals( algorithm ) )
         {
-            return new ChecksumAlgorithmFactory( TEST_CHECKSUM, "test" )
+            return new ChecksumAlgorithmFactorySupport( TEST_CHECKSUM, "test" )
             {
                 @Override
                 public ChecksumAlgorithm getAlgorithm()
@@ -96,19 +97,18 @@ public class TestChecksumAlgorithmSelector
     }
 
     private static class MessageDigestChecksumAlgorithmFactory
-            extends ChecksumAlgorithmFactory
+            extends ChecksumAlgorithmFactorySupport
     {
         public MessageDigestChecksumAlgorithmFactory( String name )
         {
             super( name, name.replace( "-", "" ).toLowerCase( Locale.ENGLISH ) );
-            // this call prevents component instantiation in case of unsupported algorithm, fail fast
             try
             {
-                MessageDigest.getInstance( getName() );
+                MessageDigest.getInstance( name );
             }
             catch ( NoSuchAlgorithmException e )
             {
-                throw new IllegalStateException( "Unsupported checksum type: " + name, e );
+                throw new IllegalArgumentException( "Algorithm '" + name + "' not supported." );
             }
         }
 
@@ -135,8 +135,7 @@ public class TestChecksumAlgorithmSelector
             }
             catch ( NoSuchAlgorithmException e )
             {
-                throw new IllegalStateException( getName() + " MessageDigest not supported, is required by resolver.",
-                        e );
+                throw new RuntimeException( e ); // cannot happen, name checked already
             }
         }
     }

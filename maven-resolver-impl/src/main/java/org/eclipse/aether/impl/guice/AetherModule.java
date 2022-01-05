@@ -45,6 +45,8 @@ import org.eclipse.aether.internal.impl.DefaultTrackingFileManager;
 import org.eclipse.aether.internal.impl.TrackingFileManager;
 import org.eclipse.aether.internal.impl.checksum.ChecksumAlgorithmFactoryMD5;
 import org.eclipse.aether.internal.impl.checksum.ChecksumAlgorithmFactorySHA1;
+import org.eclipse.aether.internal.impl.checksum.ChecksumAlgorithmFactorySHA256;
+import org.eclipse.aether.internal.impl.checksum.ChecksumAlgorithmFactorySHA512;
 import org.eclipse.aether.internal.impl.checksum.DefaultChecksumAlgorithmFactorySelector;
 import org.eclipse.aether.internal.impl.synccontext.DefaultSyncContextFactory;
 import org.eclipse.aether.internal.impl.synccontext.named.NamedLockFactorySelector;
@@ -168,10 +170,14 @@ public class AetherModule
                 .to( EnhancedLocalRepositoryManagerFactory.class ).in( Singleton.class );
         bind( TrackingFileManager.class ).to( DefaultTrackingFileManager.class ).in( Singleton.class );
 
-        bind( ChecksumAlgorithmFactory.class ).annotatedWith( Names.named( ChecksumAlgorithmFactorySHA1.NAME ) )
-                .to( ChecksumAlgorithmFactorySHA1.class );
         bind( ChecksumAlgorithmFactory.class ).annotatedWith( Names.named( ChecksumAlgorithmFactoryMD5.NAME ) )
                 .to( ChecksumAlgorithmFactoryMD5.class );
+        bind( ChecksumAlgorithmFactory.class ).annotatedWith( Names.named( ChecksumAlgorithmFactorySHA1.NAME ) )
+                .to( ChecksumAlgorithmFactorySHA1.class );
+        bind( ChecksumAlgorithmFactory.class ).annotatedWith( Names.named( ChecksumAlgorithmFactorySHA256.NAME ) )
+                .to( ChecksumAlgorithmFactorySHA256.class );
+        bind( ChecksumAlgorithmFactory.class ).annotatedWith( Names.named( ChecksumAlgorithmFactorySHA512.NAME ) )
+                .to( ChecksumAlgorithmFactorySHA512.class );
         bind( ChecksumAlgorithmFactorySelector.class ).to( DefaultChecksumAlgorithmFactorySelector.class );
 
         bind( NamedLockFactorySelector.class ).to( SimpleNamedLockFactorySelector.class ).in( Singleton.class );
@@ -205,10 +211,14 @@ public class AetherModule
     @Provides
     @Singleton
     Map<String, ChecksumAlgorithmFactory> provideChecksumTypes(
+            @Named( ChecksumAlgorithmFactorySHA512.NAME ) ChecksumAlgorithmFactory sha512,
+            @Named( ChecksumAlgorithmFactorySHA256.NAME ) ChecksumAlgorithmFactory sha256,
             @Named( ChecksumAlgorithmFactorySHA1.NAME ) ChecksumAlgorithmFactory sha1,
             @Named( ChecksumAlgorithmFactoryMD5.NAME ) ChecksumAlgorithmFactory md5 )
     {
         Map<String, ChecksumAlgorithmFactory> checksumTypes = new HashMap<>();
+        checksumTypes.put( ChecksumAlgorithmFactorySHA512.NAME, sha512 );
+        checksumTypes.put( ChecksumAlgorithmFactorySHA256.NAME, sha256 );
         checksumTypes.put( ChecksumAlgorithmFactorySHA1.NAME, sha1 );
         checksumTypes.put( ChecksumAlgorithmFactoryMD5.NAME, md5 );
         return Collections.unmodifiableMap( checksumTypes );

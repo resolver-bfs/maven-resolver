@@ -21,6 +21,7 @@ package org.eclipse.aether.internal.impl.checksum;
 
 import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithm;
 import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactory;
+import org.eclipse.aether.spi.connector.checksum.ChecksumAlgorithmFactorySupport;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -32,7 +33,7 @@ import java.security.NoSuchAlgorithmException;
  * @since TBD
  */
 public abstract class MessageDigestChecksumAlgorithmFactorySupport
-        extends ChecksumAlgorithmFactory
+        extends ChecksumAlgorithmFactorySupport
 {
     public MessageDigestChecksumAlgorithmFactorySupport( String name, String extension )
     {

@@ -19,26 +19,42 @@ package org.eclipse.aether.spi.connector.checksum;
  * under the License.
  */
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * A component representing a checksum factory: provides {@link ChecksumAlgorithm} instances and some helpers.
  * Implementors should ensure that factory cannot be instantiated, if required conditions are not met.
  *
  * @since TBD
  */
-public interface ChecksumAlgorithmFactory
+public abstract class ChecksumAlgorithmFactorySupport
+    implements ChecksumAlgorithmFactory
 {
+    private final String name;
+
+    private final String extension;
+
+    public ChecksumAlgorithmFactorySupport( String name, String extension )
+    {
+        this.name = requireNonNull( name );
+        this.extension = requireNonNull( extension );
+    }
+
     /**
      * Returns the algorithm name, usually used as key, never {@code null} value.
      */
-    String getName();
+    @Override
+    public String getName()
+    {
+        return name;
+    }
 
     /**
      * Returns the file extension to be used for given checksum algorithm (without leading dot), never {@code null}.
      */
-    String getExtension();
-
-    /**
-     * Returns a new instance of algorithm, never {@code null} value.
-     */
-    ChecksumAlgorithm getAlgorithm();
+    @Override
+    public String getExtension()
+    {
+        return extension;
+    }
 }

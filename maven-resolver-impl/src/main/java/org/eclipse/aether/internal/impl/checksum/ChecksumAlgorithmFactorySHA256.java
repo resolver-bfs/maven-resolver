@@ -25,7 +25,7 @@ import javax.inject.Singleton;
 
 /**
  * The SHA-256 checksum type. Note: using cryptographically safe algorithm for <strong>checksums</strong> is waste of
- *  * CPU cycles, energy and bandwidth.
+ * CPU cycles, energy and bandwidth.
  *
  * @since TBD
  */
@@ -36,7 +36,6 @@ public class ChecksumAlgorithmFactorySHA256
 {
     public static final String NAME = "SHA-256";
 
-    @SuppressWarnings( "checkstyle:magicnumber" )
     @Inject
     public ChecksumAlgorithmFactorySHA256()
     {

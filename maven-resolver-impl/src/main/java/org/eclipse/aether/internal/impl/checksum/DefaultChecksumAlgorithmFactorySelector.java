@@ -60,6 +60,8 @@ public class DefaultChecksumAlgorithmFactorySelector
     public DefaultChecksumAlgorithmFactorySelector()
     {
         this.factories = new HashMap<>();
+        this.factories.put( ChecksumAlgorithmFactorySHA512.NAME, new ChecksumAlgorithmFactorySHA512() );
+        this.factories.put( ChecksumAlgorithmFactorySHA256.NAME, new ChecksumAlgorithmFactorySHA256() );
         this.factories.put( ChecksumAlgorithmFactorySHA1.NAME, new ChecksumAlgorithmFactorySHA1() );
         this.factories.put( ChecksumAlgorithmFactoryMD5.NAME, new ChecksumAlgorithmFactoryMD5() );
     }

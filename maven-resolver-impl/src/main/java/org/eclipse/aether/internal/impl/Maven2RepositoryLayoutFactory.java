@@ -121,7 +121,7 @@ public final class Maven2RepositoryLayoutFactory
             }
             else
             {
-                // TODO: LOG?
+                throw new IllegalArgumentException( "Unsupported checksum algorithm: " + checksumsAlgorithm );
             }
         }
 

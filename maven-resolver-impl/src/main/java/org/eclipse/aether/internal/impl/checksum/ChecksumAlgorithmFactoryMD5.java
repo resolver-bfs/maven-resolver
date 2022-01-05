@@ -35,7 +35,6 @@ public class ChecksumAlgorithmFactoryMD5
 {
     public static final String NAME = "MD5";
 
-    @SuppressWarnings( "checkstyle:magicnumber" )
     @Inject
     public ChecksumAlgorithmFactoryMD5()
     {
