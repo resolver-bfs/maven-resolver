@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +37,6 @@ import java.util.Map;
 import org.eclipse.aether.internal.test.util.TestFileUtils;
 import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ChecksumCalculatorTest
@@ -118,15 +116,8 @@ public class ChecksumCalculatorTest
     @Test( expected = IllegalArgumentException.class )
     public void testUnknownAlgorithm()
     {
-        ChecksumCalculator calculator = newCalculator( "unknown", TestChecksumAlgorithmSelector.TEST_CHECKSUM, SHA1 );
-        calculator.init( 0 );
-        calculator.update( toBuffer( "Hello World!" ) );
-        Map<String, Object> digests = calculator.get();
-        assertNotNull( digests );
-        assertEquals( "2ef7bde608ce5404e97d5f042f95f89f1c232871", digests.get( SHA1 ) );
-        assertTrue( digests.get( "unknown" ) instanceof NoSuchAlgorithmException );
-        assertEquals( "01020304", digests.get( TestChecksumAlgorithmSelector.TEST_CHECKSUM ) );
-        assertEquals( 3, digests.size() );
+        // resolver now does not tolerate unknown checksums: as they may be set by user only, it is user misconfiguration
+        newCalculator( "unknown", SHA1 );
     }
 
     @Test
